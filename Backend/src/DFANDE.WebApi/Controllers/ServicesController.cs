@@ -1,3 +1,4 @@
+using DFANDE.Application.Common.Interfaces;
 using DFANDE.Application.Features.Services;
 using DFANDE.Application.Features.Services.Commands.CreateService;
 using DFANDE.Application.Features.Services.Commands.DeleteService;
@@ -16,9 +17,8 @@ namespace DFANDE.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ServicesController(ISender sender) : ControllerBase
+public class ServicesController(ISender sender, IAuditLogService auditLogService) : ControllerBase
 {
-    /// <summary>Public — what the homepage and public /services page render.</summary>
     [HttpGet]
     public async Task<ActionResult<ApiResponse<List<ServiceDto>>>> GetPublished(CancellationToken cancellationToken)
     {
@@ -26,16 +26,14 @@ public class ServicesController(ISender sender) : ControllerBase
         return Ok(ApiResponse<List<ServiceDto>>.Ok(services));
     }
 
-    /// <summary>CMS-only — every service, published or not.</summary>
     [HttpGet("all")]
-    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Administrator},{Roles.Editor}")]
+    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.ContentManager},{Roles.InquiryViewer}")]
     public async Task<ActionResult<ApiResponse<List<ServiceDto>>>> GetAll(CancellationToken cancellationToken)
     {
         var services = await sender.Send(new GetAllServicesQuery(), cancellationToken);
         return Ok(ApiResponse<List<ServiceDto>>.Ok(services));
     }
 
-    /// <summary>Public — a single published service by its slug.</summary>
     [HttpGet("{slug}")]
     public async Task<ActionResult<ApiResponse<ServiceDto>>> GetBySlug(string slug, CancellationToken cancellationToken)
     {
@@ -48,15 +46,22 @@ public class ServicesController(ISender sender) : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Administrator},{Roles.Editor}")]
+    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.ContentManager}")]
     public async Task<ActionResult<ApiResponse<object>>> Create(CreateServiceCommand command, CancellationToken cancellationToken)
     {
         var id = await sender.Send(command, cancellationToken);
+        await auditLogService.LogAsync(
+            action: "CREATE_SERVICE",
+            entityName: "Service",
+            entityId: id.ToString(),
+            details: new { command.Title, command.Slug },
+            cancellationToken: cancellationToken);
+
         return Ok(ApiResponse<object>.Ok(new { id }, "Service created."));
     }
 
     [HttpPut("{id:guid}")]
-    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Administrator},{Roles.Editor}")]
+    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.ContentManager}")]
     public async Task<ActionResult<ApiResponse<object>>> Update(Guid id, UpdateServiceRequest request, CancellationToken cancellationToken)
     {
         await sender.Send(
@@ -64,22 +69,43 @@ public class ServicesController(ISender sender) : ControllerBase
                 id, request.Title, request.Slug, request.Summary, request.Scope,
                 request.Icon, request.ImageUrl, request.DisplayOrder, request.IsFeatured),
             cancellationToken);
+
+        await auditLogService.LogAsync(
+            action: "UPDATE_SERVICE",
+            entityName: "Service",
+            entityId: id.ToString(),
+            details: new { request.Title, request.Slug },
+            cancellationToken: cancellationToken);
+
         return Ok(ApiResponse<object>.Ok(new { id }, "Service updated."));
     }
 
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Administrator}")]
+    [Authorize(Roles = Roles.SuperAdmin)]
     public async Task<ActionResult<ApiResponse<object>>> Delete(Guid id, CancellationToken cancellationToken)
     {
         await sender.Send(new DeleteServiceCommand(id), cancellationToken);
+        await auditLogService.LogAsync(
+            action: "DELETE_SERVICE",
+            entityName: "Service",
+            entityId: id.ToString(),
+            cancellationToken: cancellationToken);
+
         return Ok(ApiResponse<object>.Ok(new { id }, "Service deleted."));
     }
 
     [HttpPatch("{id:guid}/publish")]
-    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Administrator}")]
+    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.ContentManager}")]
     public async Task<ActionResult<ApiResponse<object>>> SetPublished(Guid id, SetPublishedRequest request, CancellationToken cancellationToken)
     {
         await sender.Send(new SetServicePublishedCommand(id, request.IsPublished), cancellationToken);
+        await auditLogService.LogAsync(
+            action: request.IsPublished ? "PUBLISH_SERVICE" : "UNPUBLISH_SERVICE",
+            entityName: "Service",
+            entityId: id.ToString(),
+            details: new { request.IsPublished },
+            cancellationToken: cancellationToken);
+
         return Ok(ApiResponse<object>.Ok(new { id, request.IsPublished }));
     }
 }

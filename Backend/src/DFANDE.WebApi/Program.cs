@@ -5,6 +5,7 @@ using DFANDE.Infrastructure;
 using DFANDE.Infrastructure.Identity;
 using DFANDE.WebApi.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
@@ -43,6 +44,17 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Services.Configure<RouteOptions>(options =>
+{
+    options.LowercaseUrls = true;
+});
+
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+});
+builder.Services.AddMemoryCache();
+
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -66,6 +78,8 @@ builder.Services
             ValidIssuer = jwtSettings.Issuer,
             ValidAudience = jwtSettings.Audience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
+            RoleClaimType = System.Security.Claims.ClaimTypes.Role,
+            NameClaimType = "displayName",
         };
     });
 
@@ -77,7 +91,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(FrontendCorsPolicy, policy =>
     {
         var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-            ?? ["http://localhost:5173", "http://localhost:5174"];
+            ?? ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"];
 
         policy.WithOrigins(origins)
             .AllowAnyHeader()
@@ -88,16 +102,69 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseResponseCompression();
+
+var swaggerEnabled = builder.Configuration.GetValue<bool>("Swagger:Enabled", app.Environment.IsDevelopment());
+if (swaggerEnabled)
+{
+    var swaggerRequireAuth = builder.Configuration.GetValue<bool>("Swagger:RequireAuth", false);
+    if (swaggerRequireAuth)
+    {
+        app.UseWhen(context => context.Request.Path.StartsWithSegments("/swagger"), swaggerApp =>
+        {
+            swaggerApp.UseAuthentication();
+            swaggerApp.UseAuthorization();
+        });
+    }
+
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "DFANDE API v1");
+        c.RoutePrefix = "swagger";
+    });
+}
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-
     using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<DFANDE.Infrastructure.Persistence.ApplicationDbContext>();
+    await dbContext.Database.EnsureCreatedAsync();
+
+    try
+    {
+        await dbContext.Database.ExecuteSqlRawAsync(@"
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'AspNetUsers')
+BEGIN
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('AspNetUsers') AND name = 'IsActive')
+    BEGIN
+        ALTER TABLE [AspNetUsers] ADD [IsActive] BIT NOT NULL DEFAULT 1;
+    END
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('AspNetUsers') AND name = 'CreatedAtUtc')
+    BEGIN
+        ALTER TABLE [AspNetUsers] ADD [CreatedAtUtc] DATETIME2 NOT NULL DEFAULT GETUTCDATE();
+    END
+END
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'AuditLogs')
+BEGIN
+    CREATE TABLE [AuditLogs] (
+        [Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+        [UserId] UNIQUEIDENTIFIER NULL,
+        [UserEmail] NVARCHAR(256) NOT NULL,
+        [UserDisplayName] NVARCHAR(256) NOT NULL,
+        [Action] NVARCHAR(128) NOT NULL,
+        [EntityName] NVARCHAR(128) NOT NULL,
+        [EntityId] NVARCHAR(256) NULL,
+        [DetailsJson] NVARCHAR(MAX) NULL,
+        [IpAddress] NVARCHAR(64) NULL,
+        [TimestampUtc] DATETIME2 NOT NULL DEFAULT GETUTCDATE()
+    );
+END");
+    }
+    catch { /* Schema check for SQL Server vs Postgres */ }
+
     await IdentitySeeder.SeedAsync(scope.ServiceProvider, app.Configuration);
 
-    var dbContext = scope.ServiceProvider.GetRequiredService<DFANDE.Infrastructure.Persistence.ApplicationDbContext>();
     var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
     await DFANDE.Infrastructure.Persistence.ServiceSeeder.SeedAsync(dbContext, loggerFactory);
     await DFANDE.Infrastructure.Persistence.ProductSeeder.SeedAsync(dbContext, loggerFactory);

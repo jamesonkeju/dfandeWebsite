@@ -42,11 +42,40 @@ export const JSON_FIELD_MANIFESTS: Record<string, JsonFieldManifest> = {
       { name: "body", label: "Body", type: "text" },
     ],
   },
+  "about.milestones": {
+    kind: "array",
+    fields: [
+      { name: "year", label: "Year", type: "text" },
+      { name: "title", label: "Milestone Title", type: "text" },
+      { name: "description", label: "Detailed Scope / Description", type: "text" },
+      { name: "badge", label: "Badge / Category Tag", type: "text" },
+    ],
+  },
   "certifications.items": {
     kind: "array",
     fields: [
-      { name: "code", label: "Code", type: "text" },
-      { name: "label", label: "Label", type: "text" },
+      { name: "code", label: "Standard Code (e.g. ISO 9001:2015)", type: "text" },
+      { name: "label", label: "Certification Label / Scope", type: "text" },
+      { name: "description", label: "Description", type: "text" },
+      { name: "documentSlug", label: "Secure Document Slug", type: "text" },
+    ],
+  },
+  "services.preservation.caseStudies": {
+    kind: "array",
+    fields: [
+      { name: "client", label: "Client Reference", type: "text" },
+      { name: "title", label: "Project / Asset Title", type: "text" },
+      { name: "beforeImage", label: "Before Photo Path", type: "text" },
+      { name: "afterImage", label: "After Photo Path", type: "text" },
+      { name: "scope", label: "Scope & Preservation Treatment", type: "text" },
+    ],
+  },
+  "faq.items": {
+    kind: "array",
+    fields: [
+      { name: "question", label: "Question", type: "text" },
+      { name: "answer", label: "Answer", type: "text" },
+      { name: "category", label: "Category (e.g. Capabilities, Facilities, Compliance)", type: "text" },
     ],
   },
   "partners.keyCustomers": {

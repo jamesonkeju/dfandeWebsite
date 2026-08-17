@@ -11,13 +11,13 @@ import { GalleryPage } from "@/features/gallery/GalleryPage";
 import { CertificationsPage } from "@/features/certifications/CertificationsPage";
 import { CareersPage } from "@/features/careers/CareersPage";
 import { ContactPage } from "@/features/contact/ContactPage";
+import { FaqPage } from "@/features/faq/FaqPage";
 import { ComingSoonPage } from "@/features/home/ComingSoonPage";
 import { LoginPage } from "@/features/admin/auth/LoginPage";
+import { ForgotPasswordPage } from "@/features/admin/auth/ForgotPasswordPage";
+import { ResetPasswordPage } from "@/features/admin/auth/ResetPasswordPage";
 import { ProtectedRoute } from "@/features/admin/ProtectedRoute";
 
-// The admin CMS (Formik/Yup forms, and now TipTap's rich-text editor) is
-// only ever loaded by authenticated staff — code-split it out of the
-// public marketing site's bundle rather than shipping it to every visitor.
 const AdminLayout = lazy(() => import("@/layouts/AdminLayout").then((m) => ({ default: m.AdminLayout })));
 const DashboardPage = lazy(() => import("@/features/admin/dashboard/DashboardPage").then((m) => ({ default: m.DashboardPage })));
 const ContactInboxPage = lazy(() => import("@/features/admin/contact/ContactInboxPage").then((m) => ({ default: m.ContactInboxPage })));
@@ -28,6 +28,8 @@ const ProductFormPage = lazy(() => import("@/features/admin/products/ProductForm
 const AdminProjectsListPage = lazy(() => import("@/features/admin/projects/ProjectsListPage").then((m) => ({ default: m.ProjectsListPage })));
 const ProjectFormPage = lazy(() => import("@/features/admin/projects/ProjectFormPage").then((m) => ({ default: m.ProjectFormPage })));
 const ContentBlocksPage = lazy(() => import("@/features/admin/content/ContentBlocksPage").then((m) => ({ default: m.ContentBlocksPage })));
+const UsersListPage = lazy(() => import("@/features/admin/users/UsersListPage").then((m) => ({ default: m.UsersListPage })));
+const AuditLogsPage = lazy(() => import("@/features/admin/audit/AuditLogsPage").then((m) => ({ default: m.AuditLogsPage })));
 
 function AdminSuspense({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<div className="p-8 text-sm text-ink-soft">Loading…</div>}>{children}</Suspense>;
@@ -45,12 +47,15 @@ export const router = createBrowserRouter([
       { path: "/projects", element: <ProjectsPage /> },
       { path: "/gallery", element: <GalleryPage /> },
       { path: "/certifications", element: <CertificationsPage /> },
+      { path: "/faq", element: <FaqPage /> },
       { path: "/careers", element: <CareersPage /> },
       { path: "/contact", element: <ContactPage /> },
       { path: "*", element: <ComingSoonPage /> },
     ],
   },
   { path: "/admin/login", element: <LoginPage /> },
+  { path: "/admin/forgot-password", element: <ForgotPasswordPage /> },
+  { path: "/admin/reset-password", element: <ResetPasswordPage /> },
   {
     path: "/admin",
     element: (
@@ -63,17 +68,110 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <DashboardPage /> },
       { path: "contact", element: <ContactInboxPage /> },
-      { path: "services", element: <AdminServicesListPage /> },
-      { path: "services/new", element: <ServiceFormPage /> },
-      { path: "services/:id/edit", element: <ServiceFormPage /> },
-      { path: "products", element: <AdminProductsListPage /> },
-      { path: "products/new", element: <ProductFormPage /> },
-      { path: "products/:id/edit", element: <ProductFormPage /> },
-      { path: "projects", element: <AdminProjectsListPage /> },
-      { path: "projects/new", element: <ProjectFormPage /> },
-      { path: "projects/:id/edit", element: <ProjectFormPage /> },
-      { path: "content", element: <ContentBlocksPage /> },
-      { path: "content/:pageGroup", element: <ContentBlocksPage /> },
+      {
+        path: "services",
+        element: (
+          <ProtectedRoute allowedRoles={["SuperAdmin", "ContentManager", "Administrator", "Editor"]}>
+            <AdminServicesListPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "services/new",
+        element: (
+          <ProtectedRoute allowedRoles={["SuperAdmin", "ContentManager", "Administrator", "Editor"]}>
+            <ServiceFormPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "services/:id/edit",
+        element: (
+          <ProtectedRoute allowedRoles={["SuperAdmin", "ContentManager", "Administrator", "Editor"]}>
+            <ServiceFormPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "products",
+        element: (
+          <ProtectedRoute allowedRoles={["SuperAdmin", "ContentManager", "Administrator", "Editor"]}>
+            <AdminProductsListPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "products/new",
+        element: (
+          <ProtectedRoute allowedRoles={["SuperAdmin", "ContentManager", "Administrator", "Editor"]}>
+            <ProductFormPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "products/:id/edit",
+        element: (
+          <ProtectedRoute allowedRoles={["SuperAdmin", "ContentManager", "Administrator", "Editor"]}>
+            <ProductFormPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "projects",
+        element: (
+          <ProtectedRoute allowedRoles={["SuperAdmin", "ContentManager", "Administrator", "Editor"]}>
+            <AdminProjectsListPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "projects/new",
+        element: (
+          <ProtectedRoute allowedRoles={["SuperAdmin", "ContentManager", "Administrator", "Editor"]}>
+            <ProjectFormPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "projects/:id/edit",
+        element: (
+          <ProtectedRoute allowedRoles={["SuperAdmin", "ContentManager", "Administrator", "Editor"]}>
+            <ProjectFormPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "content",
+        element: (
+          <ProtectedRoute allowedRoles={["SuperAdmin", "ContentManager", "Administrator", "Editor"]}>
+            <ContentBlocksPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "content/:pageGroup",
+        element: (
+          <ProtectedRoute allowedRoles={["SuperAdmin", "ContentManager", "Administrator", "Editor"]}>
+            <ContentBlocksPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "users",
+        element: (
+          <ProtectedRoute allowedRoles={["SuperAdmin"]}>
+            <UsersListPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "audit-logs",
+        element: (
+          <ProtectedRoute allowedRoles={["SuperAdmin"]}>
+            <AuditLogsPage />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
 ]);

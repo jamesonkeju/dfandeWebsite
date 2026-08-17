@@ -17,9 +17,11 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(x => x.Application).HasMaxLength(300);
         builder.Property(x => x.ImageUrl).HasMaxLength(500);
 
-        // EF Core 8 primitive collection, stored as a jsonb array — same
-        // pattern as Service.Scope, no separate child table needed.
-        builder.Property(x => x.Items).HasColumnType("jsonb");
+        builder.Property(x => x.Items)
+            .HasConversion(
+                v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                v => string.IsNullOrEmpty(v) ? new List<string>() : (System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<string>()));
+
 
         builder.HasIndex(x => x.Slug).IsUnique();
         builder.HasIndex(x => x.DisplayOrder);

@@ -4,7 +4,11 @@ import { api } from "./api";
 
 export const store = configureStore({
   reducer: rootReducer,
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+      immutableCheck: false,
+    }).concat(api.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

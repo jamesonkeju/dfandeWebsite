@@ -1,3 +1,4 @@
+using DFANDE.Application.Common.Interfaces;
 using DFANDE.Application.Features.Contact.Commands.CreateContactSubmission;
 using DFANDE.Application.Features.Contact.Commands.UpdateContactSubmissionStatus;
 using DFANDE.Application.Features.Contact.Queries.GetContactSubmissions;
@@ -12,7 +13,7 @@ namespace DFANDE.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ContactController(ISender sender) : ControllerBase
+public class ContactController(ISender sender, IAuditLogService auditLogService) : ControllerBase
 {
     /// <summary>Public endpoint — anyone can submit the contact form.</summary>
     [HttpPost]
@@ -33,9 +34,9 @@ public class ContactController(ISender sender) : ControllerBase
         return Ok(ApiResponse<object>.Ok(new { id }, "Thanks — we've received your message and will be in touch."));
     }
 
-    /// <summary>CMS-only — viewing customer submissions requires Administrator or Super Admin.</summary>
+    /// <summary>CMS-only — viewing customer submissions is available to all authenticated admin roles.</summary>
     [HttpGet]
-    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Administrator}")]
+    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.ContentManager},{Roles.InquiryViewer}")]
     public async Task<ActionResult<ApiResponse<List<ContactSubmissionDto>>>> GetAll(CancellationToken cancellationToken)
     {
         var submissions = await sender.Send(new GetContactSubmissionsQuery(), cancellationToken);
@@ -44,13 +45,21 @@ public class ContactController(ISender sender) : ControllerBase
 
     /// <summary>CMS-only — mark a submission Read, Responded or Archived.</summary>
     [HttpPatch("{id:guid}/status")]
-    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Administrator}")]
+    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.ContentManager}")]
     public async Task<ActionResult<ApiResponse<object>>> UpdateStatus(
         Guid id,
         UpdateStatusRequest request,
         CancellationToken cancellationToken)
     {
         await sender.Send(new UpdateContactSubmissionStatusCommand(id, request.Status), cancellationToken);
+
+        await auditLogService.LogAsync(
+            action: "UPDATE_CONTACT_STATUS",
+            entityName: "ContactSubmission",
+            entityId: id.ToString(),
+            details: new { Status = request.Status.ToString() },
+            cancellationToken: cancellationToken);
+
         return Ok(ApiResponse<object>.Ok(new { id, status = request.Status.ToString() }));
     }
 }

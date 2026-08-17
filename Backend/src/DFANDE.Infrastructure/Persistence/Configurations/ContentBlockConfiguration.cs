@@ -16,8 +16,12 @@ public class ContentBlockConfiguration : IEntityTypeConfiguration<ContentBlock>
         builder.Property(x => x.PageGroup).IsRequired().HasMaxLength(50);
         builder.Property(x => x.ValueType).IsRequired().HasConversion<string>().HasMaxLength(20);
         builder.Property(x => x.TextValue).HasMaxLength(20_000);
-        builder.Property(x => x.JsonValue).HasColumnType("jsonb");
-        builder.Property(x => x.ListValue).HasColumnType("jsonb");
+        builder.Property(x => x.JsonValue);
+        builder.Property(x => x.ListValue)
+            .HasConversion(
+                v => v == null ? null : System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                v => string.IsNullOrEmpty(v) ? null : System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null));
+
         builder.Property(x => x.DisplayLabel).IsRequired().HasMaxLength(200);
         builder.Property(x => x.HelpText).HasMaxLength(500);
 

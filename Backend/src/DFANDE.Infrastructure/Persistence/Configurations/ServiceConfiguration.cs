@@ -18,9 +18,11 @@ public class ServiceConfiguration : IEntityTypeConfiguration<Service>
         builder.Property(x => x.Icon).IsRequired().HasMaxLength(50);
         builder.Property(x => x.ImageUrl).HasMaxLength(500);
 
-        // EF Core 8 primitive collection, stored as a jsonb array — no
-        // separate child table needed for a simple ordered string list.
-        builder.Property(x => x.Scope).HasColumnType("jsonb");
+        builder.Property(x => x.Scope)
+            .HasConversion(
+                v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                v => string.IsNullOrEmpty(v) ? new List<string>() : (System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<string>()));
+
 
         builder.HasIndex(x => x.Slug).IsUnique();
         builder.HasIndex(x => x.DisplayOrder);

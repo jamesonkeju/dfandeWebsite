@@ -1,3 +1,4 @@
+using DFANDE.Application.Common.Interfaces;
 using DFANDE.Application.Features.Projects;
 using DFANDE.Application.Features.Projects.Commands.CreateProject;
 using DFANDE.Application.Features.Projects.Commands.DeleteProject;
@@ -15,9 +16,8 @@ namespace DFANDE.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProjectsController(ISender sender) : ControllerBase
+public class ProjectsController(ISender sender, IAuditLogService auditLogService) : ControllerBase
 {
-    /// <summary>Public — the /projects page and the homepage's featured section.</summary>
     [HttpGet]
     public async Task<ActionResult<ApiResponse<List<ProjectDto>>>> GetPublished(CancellationToken cancellationToken)
     {
@@ -25,9 +25,8 @@ public class ProjectsController(ISender sender) : ControllerBase
         return Ok(ApiResponse<List<ProjectDto>>.Ok(projects));
     }
 
-    /// <summary>CMS-only — every project, published or not.</summary>
     [HttpGet("all")]
-    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Administrator},{Roles.Editor}")]
+    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.ContentManager},{Roles.InquiryViewer}")]
     public async Task<ActionResult<ApiResponse<List<ProjectDto>>>> GetAll(CancellationToken cancellationToken)
     {
         var projects = await sender.Send(new GetAllProjectsQuery(), cancellationToken);
@@ -35,15 +34,22 @@ public class ProjectsController(ISender sender) : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Administrator},{Roles.Editor}")]
+    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.ContentManager}")]
     public async Task<ActionResult<ApiResponse<object>>> Create(CreateProjectCommand command, CancellationToken cancellationToken)
     {
         var id = await sender.Send(command, cancellationToken);
+        await auditLogService.LogAsync(
+            action: "CREATE_PROJECT",
+            entityName: "Project",
+            entityId: id.ToString(),
+            details: new { command.Client, command.Scope, command.Category },
+            cancellationToken: cancellationToken);
+
         return Ok(ApiResponse<object>.Ok(new { id }, "Project created."));
     }
 
     [HttpPut("{id:guid}")]
-    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Administrator},{Roles.Editor}")]
+    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.ContentManager}")]
     public async Task<ActionResult<ApiResponse<object>>> Update(Guid id, UpdateProjectRequest request, CancellationToken cancellationToken)
     {
         await sender.Send(
@@ -51,22 +57,43 @@ public class ProjectsController(ISender sender) : ControllerBase
                 id, request.Client, request.Scope, request.Location, request.Year, request.Category, request.ImageUrl,
                 request.DisplayOrder, request.IsFeatured),
             cancellationToken);
+
+        await auditLogService.LogAsync(
+            action: "UPDATE_PROJECT",
+            entityName: "Project",
+            entityId: id.ToString(),
+            details: new { request.Client, request.Scope },
+            cancellationToken: cancellationToken);
+
         return Ok(ApiResponse<object>.Ok(new { id }, "Project updated."));
     }
 
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Administrator}")]
+    [Authorize(Roles = Roles.SuperAdmin)]
     public async Task<ActionResult<ApiResponse<object>>> Delete(Guid id, CancellationToken cancellationToken)
     {
         await sender.Send(new DeleteProjectCommand(id), cancellationToken);
+        await auditLogService.LogAsync(
+            action: "DELETE_PROJECT",
+            entityName: "Project",
+            entityId: id.ToString(),
+            cancellationToken: cancellationToken);
+
         return Ok(ApiResponse<object>.Ok(new { id }, "Project deleted."));
     }
 
     [HttpPatch("{id:guid}/publish")]
-    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Administrator}")]
+    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.ContentManager}")]
     public async Task<ActionResult<ApiResponse<object>>> SetPublished(Guid id, SetPublishedRequest request, CancellationToken cancellationToken)
     {
         await sender.Send(new SetProjectPublishedCommand(id, request.IsPublished), cancellationToken);
+        await auditLogService.LogAsync(
+            action: request.IsPublished ? "PUBLISH_PROJECT" : "UNPUBLISH_PROJECT",
+            entityName: "Project",
+            entityId: id.ToString(),
+            details: new { request.IsPublished },
+            cancellationToken: cancellationToken);
+
         return Ok(ApiResponse<object>.Ok(new { id, request.IsPublished }));
     }
 }
@@ -80,6 +107,3 @@ public record UpdateProjectRequest(
     string? ImageUrl,
     int DisplayOrder,
     bool IsFeatured);
-
-// SetPublishedRequest is declared once in ServicesController.cs and reused
-// here — all controllers share the DFANDE.WebApi.Controllers namespace.

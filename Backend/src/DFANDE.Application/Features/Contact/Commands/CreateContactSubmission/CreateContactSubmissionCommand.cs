@@ -12,7 +12,9 @@ public record CreateContactSubmissionCommand(
     string? Phone,
     string? ServiceOfInterest) : IRequest<Guid>;
 
-public class CreateContactSubmissionCommandHandler(IApplicationDbContext context)
+public class CreateContactSubmissionCommandHandler(
+    IApplicationDbContext context,
+    IEmailService emailService)
     : IRequestHandler<CreateContactSubmissionCommand, Guid>
 {
     public async Task<Guid> Handle(CreateContactSubmissionCommand request, CancellationToken cancellationToken)
@@ -27,6 +29,8 @@ public class CreateContactSubmissionCommandHandler(IApplicationDbContext context
 
         context.ContactSubmissions.Add(submission);
         await context.SaveChangesAsync(cancellationToken);
+
+        await emailService.SendContactNotificationEmailAsync(submission, cancellationToken);
 
         return submission.Id;
     }

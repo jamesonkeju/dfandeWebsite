@@ -1,0 +1,21 @@
+# Dotnet & Build artifacts
+bin/
+obj/
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+
+# Node & Frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+.env.local
+.env.*.local
+
+# Scratch & Temporary test scripts
+scratch/
+test_mail.cs
+test_smtp.cs
+*.log
