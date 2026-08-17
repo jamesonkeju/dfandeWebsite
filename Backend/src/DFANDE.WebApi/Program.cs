@@ -157,7 +157,11 @@ BEGIN
         [EntityId] NVARCHAR(256) NULL,
         [DetailsJson] NVARCHAR(MAX) NULL,
         [IpAddress] NVARCHAR(64) NULL,
-        [TimestampUtc] DATETIME2 NOT NULL DEFAULT GETUTCDATE()
+        [TimestampUtc] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+        [CreatedAt] DATETIMEOFFSET NOT NULL DEFAULT SYSDATETIMEOFFSET(),
+        [CreatedBy] NVARCHAR(MAX) NULL,
+        [UpdatedAt] DATETIMEOFFSET NULL,
+        [UpdatedBy] NVARCHAR(MAX) NULL
     );
 END");
     }
