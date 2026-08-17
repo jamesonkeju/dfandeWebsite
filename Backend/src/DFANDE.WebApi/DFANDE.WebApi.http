@@ -1,0 +1,6 @@
+@DFANDE.WebApi_HostAddress = http://localhost:5057
+
+GET {{DFANDE.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

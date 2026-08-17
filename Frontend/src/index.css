@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #f3f1ec;
+  --color-paper-raised: #ffffff;
+  --color-ink: #15191e;
+  --color-ink-soft: #3a414a;
+  --color-steel: #6b7480;
+  --color-line: #dedad1;
+
+  /* Gold/near-black industrial scheme */
+  --color-gold: #f2b705;
+  --color-gold-dark: #d9a400;
+  --color-gold-ink: #14161a;
+  --color-void: #14161a;
+  --color-void-raised: #1d2025;
+  --color-void-line: #33363c;
+  --color-void-soft: #a9adb3;
+
+  --color-verify: #2f6f5e;
+  --color-verify-ink: #ffffff;
+  --color-danger: #b23a2e;
+
+  /* "Segoe UI" is deliberately excluded — Chromium mis-shapes the "gi" glyph
+     pair in it (confirmed: "Engineering" renders as "Enaineering"), so any
+     word containing that sequence renders broken on Windows. Arial doesn't
+     have the bug and is universally available there. */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, Arial, Helvetica, Roboto, sans-serif;
+  --font-mono:
+    ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo,
+    monospace;
+
+  --container-page: 1200px;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    font-weight: 700;
+  }
+  img {
+    max-width: 100%;
+    display: block;
+  }
+}
+
+@layer utilities {
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .highlight {
+    background: var(--color-gold);
+    color: var(--color-gold-ink);
+    padding: 0.05em 0.35em;
+    border-radius: 0.2em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+}
