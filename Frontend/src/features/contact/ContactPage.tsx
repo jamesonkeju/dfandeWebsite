@@ -1,6 +1,6 @@
 import { Formik, Form, Field, ErrorMessage, type FormikHelpers } from "formik";
 import * as Yup from "yup";
-import { CheckCircle, Mail, Phone, Building2, Wrench } from "lucide-react";
+import { CheckCircle, Mail, Phone, Building2, Wrench, MapPin, ExternalLink } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useGetPublishedServicesQuery } from "@/features/services/api/servicesApi";
@@ -25,10 +25,13 @@ export function ContactPage() {
 
   const contactEmail = getText("company.contactEmail", "info@dfande.com");
   const hqAddress = getText("company.headquartersAddress", "Plot 12 Commercial Block, Victoria Island, Lagos, Nigeria");
-  const facilityAddress = getText("company.facilityAddress", "Plot 45 Trans-Amadi Industrial Layout, Port Harcourt, Rivers State, Nigeria");
+  const facilityAddress = getText("company.facilityAddress", "KM 20, Aba Port-Harcourt Express Way, By Timber Bus Stop, Oyigbo, Port-Harcourt, Nigeria");
   const phones = getList("company.contactPhones");
-  const primaryPhone = phones.length > 0 ? phones[0] : "+234 803 000 0000";
-  const secondaryPhone = phones.length > 1 ? phones[1] : "+234 802 111 2222";
+  const phoneList = phones.length > 0 ? phones : [
+    "+234 810 500 0092 / 93",
+    "+234 812 904 3200",
+    "+234 803 301 9612",
+  ];
 
   const initialValues: ContactFormValues = {
     name: "",
@@ -68,68 +71,73 @@ export function ContactPage() {
       <PageHeader
         eyebrow="Contact DF&E"
         title="Get in Touch with Our Team"
-        description="Contact our Lagos headquarters or Port Harcourt field service facility for project inquiries, technical specifications, and quotation requests."
+        description="Contact our Lagos corporate office or our Port Harcourt field engineering & warehousing facility for technical inquiries, RFQs, and 24/7 field mobilization."
       />
 
-      <Container className="py-16 md:py-24 max-w-6xl">
+      <Container className="py-16 md:py-20 max-w-6xl">
         <div className="grid gap-12 lg:grid-cols-12">
           {/* LEFT: SOLID CORPORATE ADDRESS & CONTACT INFO */}
           <div className="lg:col-span-5 space-y-8">
             <div>
-              <h2 className="text-xl font-bold text-ink">Office &amp; Workshop Locations</h2>
+              <h2 className="text-xl font-bold text-ink">Office &amp; Facility Locations</h2>
               <p className="mt-2 text-sm text-ink-soft leading-relaxed">
-                We operate across two strategic hubs in Nigeria to serve onshore, swamp, and offshore energy operations.
+                Headquartered in Lagos with our full-service engineering hub and warehousing facility in Port Harcourt.
               </p>
             </div>
 
             <div className="space-y-6">
+              {/* Port Harcourt Operations Facility (Primary Workshop) */}
+              <div className="flex items-start gap-4 rounded-xl border border-line bg-paper-raised p-4">
+                <div className="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-white border border-line text-gold-dark shadow-xs">
+                  <Wrench size={20} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-ink">Port Harcourt Field Facility</h3>
+                    <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-bold text-gold-ink uppercase font-mono">Main Base</span>
+                  </div>
+                  <p className="mt-1 text-xs text-ink-soft leading-relaxed font-medium">{facilityAddress}</p>
+                  <p className="mt-1 text-xs text-steel">1,500m² Workshop · 30,000psi Testing Bunkers · Spares Hub</p>
+                </div>
+              </div>
+
               {/* Lagos HQ */}
-              <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-paper-raised border border-line text-gold-dark">
+              <div className="flex items-start gap-4 rounded-xl border border-line bg-white p-4">
+                <div className="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-paper-raised border border-line text-gold-dark shadow-xs">
                   <Building2 size={20} />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-ink">Lagos Headquarters</h3>
-                  <p className="mt-1 text-xs text-ink-soft leading-relaxed">{hqAddress}</p>
+                  <p className="mt-1 text-xs text-ink-soft leading-relaxed font-medium">{hqAddress}</p>
                   <p className="mt-1 text-xs text-steel">Monday – Friday: 8:00 AM – 5:00 PM WAT</p>
                 </div>
               </div>
 
-              {/* Port Harcourt Workshop */}
-              <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-paper-raised border border-line text-gold-dark">
-                  <Wrench size={20} />
+              {/* Direct Lines & Email */}
+              <div className="pt-2 space-y-3 text-sm">
+                <div className="flex items-start gap-3">
+                  <Phone size={16} className="text-gold-dark flex-none mt-1" />
+                  <div>
+                    <span className="block text-xs font-bold uppercase tracking-wider text-steel font-mono">Direct Lines:</span>
+                    <div className="mt-1 flex flex-col gap-1 text-xs font-semibold text-ink">
+                      {phoneList.map((ph) => (
+                        <a
+                          key={ph}
+                          href={`tel:${ph.replace(/[^\d+]/g, "")}`}
+                          className="hover:text-gold-dark transition-colors"
+                        >
+                          {ph}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-sm font-bold text-ink">Port Harcourt Field Facility</h3>
-                  <p className="mt-1 text-xs text-ink-soft leading-relaxed">{facilityAddress}</p>
-                  <p className="mt-1 text-xs text-steel">Field service, warehouse &amp; hydro testing</p>
-                </div>
-              </div>
 
-              {/* Email & Phone */}
-              <div className="pt-4 border-t border-line space-y-3 text-sm">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 pt-2 border-t border-line/60">
                   <Mail size={16} className="text-gold-dark flex-none" />
-                  <a href={`mailto:${contactEmail}`} className="font-semibold text-ink hover:text-gold-dark">
+                  <a href={`mailto:${contactEmail}`} className="text-xs font-bold text-ink hover:text-gold-dark transition-colors">
                     {contactEmail}
                   </a>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Phone size={16} className="text-gold-dark flex-none" />
-                  <span className="font-semibold text-ink">
-                    <a href={`tel:${primaryPhone.replace(/\s+/g, '')}`} className="hover:text-gold-dark">
-                      {primaryPhone}
-                    </a>
-                    {secondaryPhone && (
-                      <>
-                        {" · "}
-                        <a href={`tel:${secondaryPhone.replace(/\s+/g, '')}`} className="hover:text-gold-dark">
-                          {secondaryPhone}
-                        </a>
-                      </>
-                    )}
-                  </span>
                 </div>
               </div>
             </div>
@@ -279,6 +287,43 @@ export function ContactPage() {
                 </Formik>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* MAP & DIRECTIONS SECTION */}
+        <div className="mt-16 border-t border-line pt-12">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+            <div>
+              <div className="flex items-center gap-2 text-gold-dark font-mono text-xs font-bold uppercase tracking-widest">
+                <MapPin size={15} />
+                <span>Facility Map Location</span>
+              </div>
+              <h2 className="mt-2 text-2xl font-bold text-ink">Find Our Port Harcourt Engineering Hub</h2>
+              <p className="mt-1 text-xs text-ink-soft">
+                KM 20, Aba Port-Harcourt Express Way, By Timber Bus Stop, Oyigbo, Port-Harcourt, Rivers State, Nigeria.
+              </p>
+            </div>
+
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=KM+20+Aba+Port-Harcourt+Express+Way+Timber+Bus+Stop+Oyigbo+Port+Harcourt+Nigeria"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-xs font-bold text-ink hover:border-gold-dark hover:text-gold-dark shadow-xs transition-colors"
+            >
+              <span>Open in Google Maps</span>
+              <ExternalLink size={13} />
+            </a>
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-line shadow-sm bg-paper aspect-[16/7] min-h-[320px] relative">
+            <iframe
+              title="Divine Flame and Energy Port Harcourt Facility Location Map"
+              src="https://maps.google.com/maps?q=Timber+Bus+Stop+Oyigbo+Port+Harcourt+Nigeria&t=&z=14&ie=UTF8&iwloc=&output=embed"
+              className="w-full h-full border-0"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+            />
           </div>
         </div>
       </Container>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -89,6 +89,10 @@ export function AdminLayout() {
   const userRoles = useSelector(selectUserRoles);
 
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+
+  useEffect(() => {
+    document.title = "Admin Portal | Divine Flame and Energy International Limited";
+  }, [location.pathname]);
 
   const isSuperAdmin = userRoles.some((r) => r.toLowerCase() === "superadmin");
   const isContentMgr = userRoles.some((r) => ["contentmanager", "editor"].includes(r.toLowerCase()));

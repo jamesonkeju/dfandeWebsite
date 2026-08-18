@@ -64,9 +64,8 @@ public static class ContentBlockSeeder
         Text("company.headquarters", "company", "Headquarters", "Lagos, Nigeria");
         Text("company.fieldFacility", "company", "Field facility", "Port Harcourt, Nigeria");
         Text("company.headquartersAddress", "company", "Headquarters Address", "Plot 12, Commercial Block, Victoria Island, Lagos, Nigeria");
-        Text("company.facilityAddress", "company", "Field Service & Workshop Address", "Plot 45 Trans-Amadi Industrial Layout, Port Harcourt, Rivers State, Nigeria");
-        Text("company.contactEmail", "company", "Primary Contact Email", "info@dfande.com");
-        List("company.contactPhones", "company", "Contact Phone Numbers", ["+234 803 000 0000", "+234 802 111 2222"]);
+        Text("company.facilityAddress", "company", "Field Service & Workshop Address", "KM 20, Aba Port-Harcourt Express Way, By Timber Bus Stop, Oyigbo, Port-Harcourt, Nigeria");
+        List("company.contactPhones", "company", "Contact Phone Numbers", ["+234 810 500 0092 / 93", "+234 812 904 3200", "+234 803 301 9612"]);
         Text("company.personnelCount", "company", "Personnel count", "69");
         Text("company.tagline", "company", "Tagline", "Local Might with Global Reach.");
         Rich("company.about", "company", "About (short)",

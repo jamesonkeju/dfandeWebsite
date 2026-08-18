@@ -228,7 +228,7 @@ public class SmtpEmailService(
               </div>
               <div style=""font-size: 11px; color: #94a3b8; margin-top: 6px; line-height: 1.5;"">
                 Headquarters: Plot 12 Commercial Block, Victoria Island, Lagos, Nigeria<br />
-                Field Workshop: Plot 45 Trans-Amadi Industrial Layout, Port Harcourt, Rivers State
+                Field Workshop: KM 20, Aba Port-Harcourt Express Way, By Timber Bus Stop, Oyigbo, Port-Harcourt, Nigeria
               </div>
 
               <!-- ISO Badges Row -->

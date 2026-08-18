@@ -42,13 +42,13 @@ export const primaryNav: NavItem[] = [
     ],
   },
   {
-    label: "Projects",
-    href: "/projects",
+    label: "Work Experience",
+    href: "/work-experience",
     children: [
-      { label: "All Field Contracts", href: "/projects" },
-      { label: "Wellhead & Xmas Tree Record", href: "/projects?category=wellhead" },
-      { label: "Choke Valve Supply & Refurb", href: "/projects?category=choke-valve" },
-      { label: "Wellhead Control Panels", href: "/projects?category=control-panel" },
+      { label: "All Contract Records", href: "/work-experience" },
+      { label: "Wellhead & Xmas Tree Experience", href: "/work-experience?category=wellhead" },
+      { label: "Choke Valve Supply & Refurb", href: "/work-experience?category=choke-valve" },
+      { label: "Wellhead Control Panels", href: "/work-experience?category=control-panel" },
     ],
   },
   {

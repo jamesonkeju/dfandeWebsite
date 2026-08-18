@@ -18,7 +18,7 @@ export function Footer() {
   const aboutText = getText("company.about", "Divine Flame and Energy International Limited is an ISO-certified Nigerian oil & gas servicing company specializing in wellhead & Xmas tree equipment, choke valves, wellhead control panels, and preservation services.");
   const contactEmail = getText("company.contactEmail", "info@dfande.com");
   const hqAddress = getText("company.headquartersAddress", "Plot 12 Commercial Block, Victoria Island, Lagos, Nigeria");
-  const facilityAddress = getText("company.facilityAddress", "Plot 45 Trans-Amadi Industrial Layout, Port Harcourt, Rivers State, Nigeria");
+  const facilityAddress = getText("company.facilityAddress", "KM 20, Aba Port-Harcourt Express Way, By Timber Bus Stop, Oyigbo, Port-Harcourt, Nigeria");
   const contactPhones = getList("company.contactPhones");
   
   const certItems = getJson<CertItem[]>("certifications.items", [
@@ -63,7 +63,7 @@ export function Footer() {
             <li><a href="/about" className="hover:text-gold transition-colors">Company Overview</a></li>
             <li><a href="/about#milestones" className="hover:text-gold transition-colors">Key Milestones &amp; NCEC</a></li>
             <li><a href="/products" className="hover:text-gold transition-colors">Products Catalog</a></li>
-            <li><a href="/projects" className="hover:text-gold transition-colors">Client Field Track Record</a></li>
+            <li><a href="/work-experience" className="hover:text-gold transition-colors">Work Experience &amp; Track Record</a></li>
             <li><a href="/certifications" className="hover:text-gold transition-colors">ISO Certifications &amp; Policies</a></li>
             <li><a href="/faq" className="hover:text-gold transition-colors">FAQs &amp; Technical Inquiries</a></li>
             <li><a href="/careers" className="hover:text-gold transition-colors">Careers &amp; Openings</a></li>
@@ -96,8 +96,12 @@ export function Footer() {
           </div>
 
           <div className="mt-5 border-t border-void-line/60 pt-3">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-steel mb-1.5">Management Systems:</div>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-steel mb-2">Certified Accreditations:</div>
+            <div className="flex items-center gap-2">
+              <img src="/images/iso1.png" alt="ISO 9001:2015" className="h-8 w-auto rounded bg-white p-0.5" />
+              <img src="/images/iso2.png" alt="ISO 14001:2015" className="h-8 w-auto rounded bg-white p-0.5" />
+            </div>
+            <div className="mt-2 flex flex-wrap gap-1.5">
               {certItems.map((c) => (
                 <span key={c.code} className="rounded bg-void-line px-2 py-0.5 text-[10px] font-mono text-void-soft">
                   {c.code}
