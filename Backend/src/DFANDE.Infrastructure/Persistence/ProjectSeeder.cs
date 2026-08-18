@@ -110,9 +110,25 @@ public static class ProjectSeeder
                 "Supply, Installation, Inspection, Testing, Maintenance, Strip down, Retrofitting & Re-assembly of Surface Choke Valves",
                 "TotalEnergies JV Offshore", "2010 – till date", ProjectCategories.ChokeValve, chokeValveImage, 20, false, true),
 
+            Project.Create("Daewoo Nigeria",
+                "Supply of various Valves and Chokes",
+                "Nigeria", "2014", ProjectCategories.ChokeValve, chokeValveImage, 21, false, true),
+
+            Project.Create("Oriental Energy (formerly Afren)",
+                "Supply, Installation, Inspection, Testing, Maintenance, Strip down, Retrofitting & Re-assembly of Surface Choke Valves",
+                "Offshore, Nigeria", "2012 – till date", ProjectCategories.ChokeValve, chokeValveImage, 22, false, true),
+
+            Project.Create("Agip Nigeria",
+                "Supply of various Valves and Chokes",
+                "Nigeria", "2012", ProjectCategories.ChokeValve, chokeValveImage, 23, false, true),
+
             Project.Create("SNEPCo",
                 "Supply, Refurbishment & Recertification of Subsea Choke Valves",
-                "Bonga Main Field", "2005", ProjectCategories.ChokeValve, chokeValveImage, 21, false, true),
+                "Bonga Main Field", "2005", ProjectCategories.ChokeValve, chokeValveImage, 24, false, true),
+
+            Project.Create("Addax Petroleum",
+                "Supply & Installation of Surface Choke Valves",
+                "OML 123 & 124", "2006 – 2009", ProjectCategories.ChokeValve, chokeValveImage, 25, false, true),
         };
 
         var toAdd = projects.Where(p => !existingTitles.Contains(p.Client + p.Scope)).ToList();

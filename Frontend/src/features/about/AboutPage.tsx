@@ -173,6 +173,22 @@ export function AboutPage() {
                 NCDMB Category 1 NCEC
               </span>
             </div>
+
+            <div className="mt-6 flex items-center gap-4 border-t border-line/60 pt-4">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-steel font-mono">Certified By:</span>
+              <div className="flex items-center gap-3">
+                <img
+                  src="/images/iso1.png"
+                  alt="ISO 9001:2015 Certified Seal"
+                  className="h-9 w-auto rounded border border-line bg-white p-1 shadow-xs"
+                />
+                <img
+                  src="/images/iso2.png"
+                  alt="ISO 14001:2015 Certified Seal"
+                  className="h-9 w-auto rounded border border-line bg-white p-1 shadow-xs"
+                />
+              </div>
+            </div>
           </Reveal>
         </Container>
       </section>

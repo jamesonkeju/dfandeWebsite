@@ -116,6 +116,35 @@ export function CertificationsPage() {
           </Reveal>
         </div>
 
+        {/* Authentic ISO Accreditation Seals */}
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-6 rounded-2xl border border-gold-dark/30 bg-gradient-to-r from-paper to-paper-raised p-6 shadow-xs">
+          <div className="flex items-center gap-4">
+            <ShieldCheck size={28} className="text-gold-dark flex-none" />
+            <div>
+              <h4 className="text-sm font-bold text-ink">UK ASCB &amp; IGS Certified Quality &amp; Environmental Systems</h4>
+              <p className="text-xs text-ink-soft">Official ISO 9001:2015 and ISO 14001:2015 accreditation seals registered to Divine Flame and Energy International Limited.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 flex-none">
+            <button
+              type="button"
+              onClick={() => setLightbox({ src: "/images/iso1.png", caption: "Official ISO 9001:2015 Certification Seal — IGS / ASCB (UK)" })}
+              className="group cursor-pointer rounded-xl border border-line bg-white p-2 shadow-sm transition-all hover:scale-105 hover:border-gold-dark"
+              title="Click to view ISO 9001:2015 seal"
+            >
+              <img src="/images/iso1.png" alt="ISO 9001:2015 Certified Seal" className="h-12 w-auto object-contain" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setLightbox({ src: "/images/iso2.png", caption: "Official ISO 14001:2015 Certification Seal — IGS / ASCB (UK)" })}
+              className="group cursor-pointer rounded-xl border border-line bg-white p-2 shadow-sm transition-all hover:scale-105 hover:border-gold-dark"
+              title="Click to view ISO 14001:2015 seal"
+            >
+              <img src="/images/iso2.png" alt="ISO 14001:2015 Certified Seal" className="h-12 w-auto object-contain" />
+            </button>
+          </div>
+        </div>
+
         <StaggerGroup className="mt-10 grid gap-6 sm:grid-cols-3">
           {certItems.map((cert, index) => {
             const certImage =

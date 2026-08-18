@@ -90,6 +90,10 @@ export function AdminLayout() {
 
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
 
+  useEffect(() => {
+    document.title = "Admin Portal | Divine Flame and Energy International Limited";
+  }, [location.pathname]);
+
   const isSuperAdmin = userRoles.some((r) => r.toLowerCase() === "superadmin");
   const isContentMgr = userRoles.some((r) => ["contentmanager", "editor"].includes(r.toLowerCase()));
   const primaryRole = userRoles[0] || "User";
