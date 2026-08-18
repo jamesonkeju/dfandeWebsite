@@ -5,7 +5,7 @@ import { Container } from "@/components/layout/Container";
 import { CtaBand } from "@/components/sections/CtaBand";
 import { useGetPublishedProjectsQuery } from "./api/projectsApi";
 import { projects as mockProjects, type Project } from "@/data/mock/projects";
-import { Search, Layers, FileText, CheckCircle, Shield, Briefcase, Award } from "lucide-react";
+import { Search, Layers, FileText, CheckCircle, Shield } from "lucide-react";
 
 const FILTERS = [
   { value: "all", label: "All Experience" },

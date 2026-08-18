@@ -4,9 +4,11 @@ export type Project = {
   scope: string;
   location: string;
   year: string;
-  category: "wellhead" | "control-panel" | "choke-valve";
-  imageUrl?: string;
+  category: string;
+  imageUrl?: string | null;
+  displayOrder?: number;
   isFeatured?: boolean;
+  isPublished?: boolean;
 };
 
 // Sourced from WORK EXPERIENCE.doc — complete contract and track record history
