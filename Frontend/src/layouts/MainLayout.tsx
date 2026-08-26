@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Header } from "@/components/navigation/Header";
 import { Footer } from "@/components/navigation/Footer";
+import { usePageTracker } from "@/features/analytics/hooks/usePageTracker";
 
 const ROUTE_TITLES: Record<string, string> = {
   "/": "Divine Flame and Energy International Limited",
@@ -18,6 +19,7 @@ const ROUTE_TITLES: Record<string, string> = {
 
 export function MainLayout() {
   const location = useLocation();
+  usePageTracker();
 
   useEffect(() => {
     const matchedTitle = ROUTE_TITLES[location.pathname];

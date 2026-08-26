@@ -68,6 +68,12 @@ const ALL_NAV_ITEMS: NavItemConfig[] = [
     allowedRoles: ["SuperAdmin", "ContentManager", "Administrator", "Editor"],
   },
   {
+    to: "/admin/analytics",
+    label: "Site Analytics & Traffic",
+    icon: Activity,
+    allowedRoles: ["SuperAdmin", "ContentManager", "Administrator", "Editor"],
+  },
+  {
     to: "/admin/users",
     label: "User Management",
     icon: Users,
@@ -76,7 +82,7 @@ const ALL_NAV_ITEMS: NavItemConfig[] = [
   {
     to: "/admin/audit-logs",
     label: "System Audit Trail",
-    icon: Activity,
+    icon: ShieldCheck,
     allowedRoles: ["SuperAdmin"],
   },
 ];

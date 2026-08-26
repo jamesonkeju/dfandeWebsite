@@ -102,6 +102,17 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+// Enterprise Security Headers
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "SAMEORIGIN");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
+    await next();
+});
+
 app.UseResponseCompression();
 
 var swaggerEnabled = builder.Configuration.GetValue<bool>("Swagger:Enabled", app.Environment.IsDevelopment());
@@ -163,6 +174,32 @@ BEGIN
         [UpdatedAt] DATETIMEOFFSET NULL,
         [UpdatedBy] NVARCHAR(MAX) NULL
     );
+END
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'VisitorLogs')
+BEGIN
+    CREATE TABLE [VisitorLogs] (
+        [Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+        [SessionId] NVARCHAR(128) NOT NULL,
+        [Path] NVARCHAR(512) NOT NULL,
+        [QueryString] NVARCHAR(1024) NULL,
+        [Referrer] NVARCHAR(1024) NULL,
+        [UserAgent] NVARCHAR(1024) NULL,
+        [Browser] NVARCHAR(128) NOT NULL DEFAULT 'Unknown',
+        [OperatingSystem] NVARCHAR(128) NOT NULL DEFAULT 'Unknown',
+        [DeviceType] NVARCHAR(64) NOT NULL DEFAULT 'Desktop',
+        [IpHash] NVARCHAR(128) NULL,
+        [Country] NVARCHAR(128) NULL,
+        [City] NVARCHAR(128) NULL,
+        [DurationSeconds] INT NOT NULL DEFAULT 0,
+        [TimestampUtc] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+        [CreatedAt] DATETIMEOFFSET NOT NULL DEFAULT SYSDATETIMEOFFSET(),
+        [CreatedBy] NVARCHAR(MAX) NULL,
+        [UpdatedAt] DATETIMEOFFSET NULL,
+        [UpdatedBy] NVARCHAR(MAX) NULL
+    );
+    CREATE INDEX [IX_VisitorLogs_TimestampUtc] ON [VisitorLogs] ([TimestampUtc]);
+    CREATE INDEX [IX_VisitorLogs_Path] ON [VisitorLogs] ([Path]);
+    CREATE INDEX [IX_VisitorLogs_SessionId] ON [VisitorLogs] ([SessionId]);
 END");
     }
     catch { /* Schema check for SQL Server vs Postgres */ }

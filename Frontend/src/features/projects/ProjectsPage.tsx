@@ -3,14 +3,16 @@ import { useSearchParams } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Container } from "@/components/layout/Container";
 import { CtaBand } from "@/components/sections/CtaBand";
+import { ClientLogo } from "@/components/common/ClientLogo";
+import { SEOHead } from "@/components/common/SEOHead";
 import { useGetPublishedProjectsQuery } from "./api/projectsApi";
 import { projects as mockProjects, type Project } from "@/data/mock/projects";
-import { Search, Layers, FileText, CheckCircle, Shield } from "lucide-react";
+import { Search, Layers, FileText, CheckCircle, Shield, MapPin, Calendar } from "lucide-react";
 
 const FILTERS = [
   { value: "all", label: "All Experience" },
   { value: "wellhead", label: "Wellhead & Xmas Tree" },
-  { value: "choke-valve", label: "Choke Valve Supply & Refurb" },
+  { value: "choke-valve", label: "Choke Valve Overhaul" },
   { value: "control-panel", label: "Wellhead Control Panels" },
 ] as const;
 
@@ -49,15 +51,55 @@ export function ProjectsPage() {
     });
   }, [effectiveProjects, filter, searchQuery]);
 
+  const seoStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "DFANDE Contractual Work Experience & Track Record",
+    "description": "Historical engineering and field service contracts executed across Nigeria for Shell, Chevron, ExxonMobil, TotalEnergies, Seplat, and NNPC.",
+    "itemListElement": filtered.slice(0, 15).map((item, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "Service",
+        "name": item.scope,
+        "provider": {
+          "@type": "Organization",
+          "name": "Divine Flame and Energy International Limited"
+        },
+        "customer": {
+          "@type": "Organization",
+          "name": item.client
+        },
+        "areaServed": item.location
+      }
+    }))
+  };
+
   return (
     <>
+      <SEOHead
+        title="Field-Proven Client Work Experience & Track Record"
+        description="Explore DFANDE's contractual track record delivering wellhead maintenance, Xmas tree overhauls, subsea choke refurbishment, and WHCP supply for IOCs including Shell, Chevron, ExxonMobil, TotalEnergies, and Seplat."
+        canonicalUrl="/work-experience"
+        keywords={[
+          "DFANDE work experience",
+          "Chevron Nigeria wellhead contract",
+          "SPDC Shell valve overhaul Nigeria",
+          "ExxonMobil subsea choke refurbishment",
+          "TotalEnergies wellhead campaign",
+          "Seplat Energy choke valve maintenance",
+          "NNPC wellhead equipment track record"
+        ]}
+        structuredData={seoStructuredData}
+      />
+
       <PageHeader
         eyebrow="Work Experience & Track Record"
         title="Field-Proven Client Work Experience"
         description="Comprehensive contractual experience across Nigeria's energy sector — spanning major IOCs and indigenous operators including Shell, Chevron, ExxonMobil, TotalEnergies, Seplat Energy, NNPC E&P, First E&P, and Addax Petroleum."
       />
 
-      <Container className="py-16 md:py-20">
+      <Container className="py-12 md:py-20">
         {isLoading && (
           <div className="flex items-center justify-center py-8">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold-dark border-t-transparent" />
@@ -78,7 +120,7 @@ export function ProjectsPage() {
                   key={f.value}
                   type="button"
                   onClick={() => handleFilterChange(f.value)}
-                  className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wide transition-all ${
+                  className={`rounded-full px-3.5 py-1.5 text-xs font-bold uppercase tracking-wide transition-all ${
                     filter === f.value
                       ? "bg-gold text-gold-ink shadow-sm"
                       : "border border-line bg-white text-ink-soft hover:border-gold-dark hover:text-gold-dark"
@@ -92,24 +134,24 @@ export function ProjectsPage() {
 
           {/* Search Box & View Mode Toggle */}
           <div className="flex items-center gap-3">
-            <div className="relative min-w-[240px] flex-1">
+            <div className="relative min-w-[220px] flex-1">
               <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-steel" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search client, field or scope…"
+                placeholder="Search operator, asset or scope…"
                 className="w-full rounded-full border border-line bg-white py-2 pl-9 pr-4 text-xs font-medium text-ink placeholder:text-steel focus:border-gold-dark focus:outline-none"
               />
             </div>
 
-            <div className="flex items-center rounded-full border border-line bg-white p-1">
+            <div className="flex items-center rounded-full border border-line bg-white p-1 shadow-sm">
               <button
                 type="button"
                 onClick={() => setViewMode("cards")}
                 title="Card View"
                 className={`rounded-full p-1.5 transition-colors ${
-                  viewMode === "cards" ? "bg-gold text-gold-ink" : "text-steel hover:text-ink"
+                  viewMode === "cards" ? "bg-gold text-gold-ink shadow-xs" : "text-steel hover:text-ink"
                 }`}
               >
                 <Layers size={15} />
@@ -119,7 +161,7 @@ export function ProjectsPage() {
                 onClick={() => setViewMode("table")}
                 title="Table View (Tender Matrix)"
                 className={`rounded-full p-1.5 transition-colors ${
-                  viewMode === "table" ? "bg-gold text-gold-ink" : "text-steel hover:text-ink"
+                  viewMode === "table" ? "bg-gold text-gold-ink shadow-xs" : "text-steel hover:text-ink"
                 }`}
               >
                 <FileText size={15} />
@@ -129,7 +171,7 @@ export function ProjectsPage() {
         </div>
 
         {/* Results Count & Meta */}
-        <div className="mt-4 flex items-center justify-between text-xs text-steel">
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-xs text-steel">
           <span>
             Showing <strong className="text-ink">{filtered.length}</strong> verified contractual records
           </span>
@@ -144,31 +186,37 @@ export function ProjectsPage() {
             {filtered.map((project, idx) => (
               <div
                 key={project.id ?? `${project.client}-${idx}`}
-                className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-gold-dark hover:shadow-md"
+                className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-gold-dark/60 hover:shadow-md"
               >
-                {project.imageUrl && (
-                  <div className="aspect-[16/10] overflow-hidden bg-paper">
-                    <img
-                      src={project.imageUrl}
-                      alt={project.client}
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </div>
-                )}
+                {/* Brand Header Banner */}
+                <div className="border-b border-line bg-gradient-to-r from-paper to-white p-5 flex items-center justify-between gap-4">
+                  <ClientLogo clientName={project.client} size="md" />
+                  <span className="rounded-full bg-paper-raised border border-line px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-steel shrink-0">
+                    {CATEGORY_LABELS[project.category] ?? project.category}
+                  </span>
+                </div>
+
+                {/* Content Body */}
                 <div className="flex flex-1 flex-col p-6">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="font-mono text-xs font-bold text-gold-dark">{project.year}</span>
-                    <span className="rounded-full bg-paper-raised border border-line px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-steel">
-                      {CATEGORY_LABELS[project.category] ?? project.category}
-                    </span>
+                  <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-gold-dark mb-2">
+                    <Calendar size={13} />
+                    <span>{project.year}</span>
                   </div>
-                  <h3 className="mt-3 text-lg font-bold text-ink group-hover:text-gold-dark transition-colors">
+
+                  <h3 className="text-base font-bold text-ink group-hover:text-gold-dark transition-colors">
                     {project.client}
                   </h3>
-                  <p className="mt-2 text-sm text-ink-soft leading-relaxed">{project.scope}</p>
+
+                  <p className="mt-2.5 text-xs md:text-sm text-ink-soft leading-relaxed line-clamp-4">
+                    {project.scope}
+                  </p>
+
                   <div className="mt-auto pt-5 flex items-center justify-between border-t border-line/60 text-xs text-steel">
-                    <span className="font-semibold uppercase tracking-wider">{project.location}</span>
-                    <CheckCircle size={14} className="text-gold-dark" />
+                    <span className="flex items-center gap-1 font-semibold uppercase tracking-wider text-[11px] truncate max-w-[80%]">
+                      <MapPin size={12} className="text-gold-dark shrink-0" />
+                      {project.location}
+                    </span>
+                    <CheckCircle size={14} className="text-gold-dark shrink-0" />
                   </div>
                 </div>
               </div>
@@ -193,9 +241,14 @@ export function ProjectsPage() {
                 <tbody className="divide-y divide-line">
                   {filtered.map((p, idx) => (
                     <tr key={p.id ?? `${p.client}-${idx}`} className="hover:bg-paper/60 transition-colors">
-                      <td className="px-6 py-4.5 font-bold text-ink whitespace-nowrap">{p.client}</td>
-                      <td className="px-6 py-4.5 text-ink-soft leading-relaxed min-w-[280px]">{p.scope}</td>
-                      <td className="px-6 py-4.5 text-steel whitespace-nowrap">{p.location}</td>
+                      <td className="px-6 py-4.5 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <ClientLogo clientName={p.client} size="sm" />
+                          <span className="font-bold text-ink text-sm">{p.client}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4.5 text-ink-soft leading-relaxed min-w-[280px] max-w-md">{p.scope}</td>
+                      <td className="px-6 py-4.5 text-steel whitespace-nowrap text-xs">{p.location}</td>
                       <td className="px-6 py-4.5 font-mono text-xs font-bold text-gold-dark whitespace-nowrap">
                         {p.year}
                       </td>

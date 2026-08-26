@@ -20,6 +20,7 @@ import {
   Download,
   X,
   ExternalLink,
+  Eye,
 } from "lucide-react";
 import {
   useGetContentBlocksQuery,
@@ -29,6 +30,7 @@ import {
 } from "@/features/content/api/contentApi";
 import { JSON_FIELD_MANIFESTS } from "@/features/content/jsonFieldManifests";
 import { RichTextEditor } from "@/features/content/components/RichTextEditor";
+import { CmsPreviewModal } from "@/features/admin/components/CmsPreviewModal";
 
 interface PageGroupMeta {
   value: string;
@@ -135,6 +137,7 @@ export function ContentBlocksPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [jsonExportOpen, setJsonExportOpen] = useState(false);
+  const [livePreviewOpen, setLivePreviewOpen] = useState(false);
 
   const rawBlocks = useMemo(
     () =>
@@ -271,6 +274,15 @@ export function ContentBlocksPage() {
           >
             <Download size={13} />
             <span>Export JSON</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setLivePreviewOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-gold-dark/40 bg-gold/10 px-3.5 py-2.5 text-xs font-bold text-gold-dark hover:bg-gold/20 transition-colors shadow-2xs cursor-pointer"
+          >
+            <Eye size={13} />
+            <span>Live Preview</span>
           </button>
 
           {rawBlocks.length > 0 && (
@@ -679,6 +691,64 @@ export function ContentBlocksPage() {
           </div>
         </div>
       )}
+      {/* CMS LIVE PREVIEW MODAL */}
+      <CmsPreviewModal
+        isOpen={livePreviewOpen}
+        onClose={() => setLivePreviewOpen(false)}
+        title={`Preview Page: ${currentGroupMeta.label}`}
+        subtitle="Live rendering of drafted content block strings, headlines, and parameters"
+        onSave={handleSave}
+        isSaving={isSaving}
+      >
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-line bg-paper p-6 space-y-2">
+            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-gold-dark">
+              Section: {currentGroupMeta.label}
+            </span>
+            <h3 className="text-xl font-bold text-ink">Draft Content Configuration</h3>
+            <p className="text-xs text-steel">{currentGroupMeta.description}</p>
+          </div>
+
+          <div className="space-y-4">
+            {rawBlocks.map((block) => {
+              const edit = edits[block.key];
+              return (
+                <div key={block.key} className="rounded-2xl border border-line bg-white p-5 shadow-xs space-y-2">
+                  <div className="flex items-center justify-between border-b border-line pb-2">
+                    <span className="text-xs font-bold text-ink">{block.displayLabel}</span>
+                    <span className="font-mono text-[10px] text-steel">{block.key}</span>
+                  </div>
+
+                  {block.valueType === "PlainText" && (
+                    <p className="text-sm font-semibold text-ink">{edit?.text || <span className="text-steel italic">Empty</span>}</p>
+                  )}
+
+                  {block.valueType === "RichText" && (
+                    <div
+                      className="prose prose-sm max-w-none text-xs text-ink-soft"
+                      dangerouslySetInnerHTML={{ __html: edit?.text || "<em>Empty HTML</em>" }}
+                    />
+                  )}
+
+                  {block.valueType === "List" && (
+                    <ul className="list-disc list-inside text-xs text-ink-soft space-y-1">
+                      {(edit?.list ?? []).map((item, idx) => (
+                        <li key={idx}>{item}</li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {block.valueType === "Json" && (
+                    <pre className="rounded-xl bg-paper p-3 font-mono text-[11px] text-ink overflow-x-auto">
+                      {JSON.stringify(edit?.json ?? {}, null, 2)}
+                    </pre>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </CmsPreviewModal>
     </div>
   );
 }

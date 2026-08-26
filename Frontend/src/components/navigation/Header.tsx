@@ -164,8 +164,25 @@ export function Header() {
               </div>
             ))}
 
-            <div className="pt-4 border-t border-line">
-              <Button href={contactCta.href} variant="primary" className="w-full justify-center">
+            <div className="pt-4 border-t border-line space-y-3">
+              <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                <a
+                  href={`mailto:${contactEmail}`}
+                  className="flex items-center justify-center gap-1.5 rounded-xl border border-line bg-paper py-2.5 font-bold text-ink hover:border-gold-dark"
+                >
+                  <Mail size={13} className="text-gold-dark" />
+                  <span>Email Team</span>
+                </a>
+                <a
+                  href="tel:+2348030000000"
+                  className="flex items-center justify-center gap-1.5 rounded-xl border border-line bg-paper py-2.5 font-bold text-ink hover:border-gold-dark"
+                >
+                  <MapPin size={13} className="text-gold-dark" />
+                  <span>PH Workshop</span>
+                </a>
+              </div>
+
+              <Button href={contactCta.href} variant="primary" className="w-full justify-center py-3 text-xs">
                 {contactCta.label}
               </Button>
             </div>

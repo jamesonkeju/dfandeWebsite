@@ -21,6 +21,7 @@ import { StaggerGroup, StaggerItem } from "@/components/motion/Stagger";
 import { useGetServiceBySlugQuery } from "./api/servicesApi";
 import { useContent } from "@/features/content/hooks/useContent";
 import { SERVICE_GALLERIES } from "./data/serviceMedia";
+import { SEOHead } from "@/components/common/SEOHead";
 
 const ICONS: Record<string, LucideIcon> = {
   flame: Flame,
@@ -99,8 +100,28 @@ export function ServiceDetailPage() {
   const Icon = ICONS[service.icon] ?? Flame;
   const isPreservation = slug === "equipment-preservation";
 
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": service.title,
+    "description": service.summary,
+    "provider": {
+      "@type": "Organization",
+      "name": "Divine Flame and Energy International Limited",
+      "url": "https://dfande.com"
+    },
+    "areaServed": "Nigeria",
+    "serviceType": "Oil and Gas Engineering Services"
+  };
+
   return (
     <>
+      <SEOHead
+        title={service.title}
+        description={service.summary}
+        canonicalUrl={`/services/${slug}`}
+        structuredData={serviceSchema}
+      />
       {/* SERVICE HERO BANNER */}
       <section className="border-b border-void-line bg-void py-16 md:py-20">
         <Container>

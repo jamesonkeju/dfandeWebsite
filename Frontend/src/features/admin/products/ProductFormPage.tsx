@@ -18,6 +18,7 @@ import {
   type ProductFormValues,
 } from "@/features/products/api/productsApi";
 import { StringListField } from "@/components/forms/StringListField";
+import { CmsPreviewModal } from "@/features/admin/components/CmsPreviewModal";
 
 const PRODUCT_PRESET_IMAGES = [
   { url: "/images/product-wellhead-equipment.jpg", label: "Wellhead & Xmas Tree Assemblies" },
@@ -63,6 +64,7 @@ export function ProductFormPage() {
 
   const [presetModalOpen, setPresetModalOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   if (isEditing && isLoading) {
@@ -263,7 +265,7 @@ export function ProductFormPage() {
                 </div>
 
                 {/* Form Actions */}
-                <div className="flex items-center gap-3 pt-2">
+                <div className="flex flex-wrap items-center gap-3 pt-2">
                   <button
                     type="submit"
                     disabled={isSubmitting}
@@ -271,10 +273,20 @@ export function ProductFormPage() {
                   >
                     {isSubmitting ? "Saving Product…" : isEditing ? "Save Changes" : "Create Product"}
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPreviewModalOpen(true)}
+                    className="flex items-center justify-center gap-1.5 rounded-xl border border-gold-dark/40 bg-gold/10 px-5 py-3 text-xs font-bold text-gold-dark hover:bg-gold/20 cursor-pointer transition-colors"
+                  >
+                    <Eye size={14} />
+                    <span>Live Preview</span>
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => navigate("/admin/products")}
-                    className="rounded-xl border border-line px-6 py-3 text-xs font-bold text-steel hover:bg-paper cursor-pointer transition-colors"
+                    className="rounded-xl border border-line px-5 py-3 text-xs font-bold text-steel hover:bg-paper cursor-pointer transition-colors"
                   >
                     Cancel
                   </button>
@@ -484,6 +496,58 @@ export function ProductFormPage() {
                   </div>
                 </div>
               )}
+              {/* CMS LIVE PREVIEW MODAL */}
+              <CmsPreviewModal
+                isOpen={previewModalOpen}
+                onClose={() => setPreviewModalOpen(false)}
+                title={`Preview Product: ${values.title || "Untitled"}`}
+                subtitle="Live responsive catalog card and component breakdown preview"
+              >
+                <div className="space-y-6 max-w-2xl mx-auto">
+                  <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-md">
+                    {/* Banner Image */}
+                    <div className="relative aspect-16/10 w-full overflow-hidden bg-paper">
+                      <img
+                        src={currentImg}
+                        alt={values.title}
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/images/product-wellhead-equipment.jpg";
+                        }}
+                      />
+                      <span className="absolute top-3 left-3 rounded-full bg-void/80 backdrop-blur-xs px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-gold">
+                        Catalog Line
+                      </span>
+                    </div>
+
+                    {/* Body */}
+                    <div className="p-6 space-y-4">
+                      <h3 className="text-xl font-bold text-ink">{values.title || "Product Line Title"}</h3>
+
+                      {values.application && (
+                        <div className="rounded-xl border border-line bg-paper-raised p-3 text-xs text-ink-soft">
+                          <strong className="text-ink">Primary Application:</strong> {values.application}
+                        </div>
+                      )}
+
+                      {/* Items */}
+                      {values.items && values.items.length > 0 && (
+                        <div className="space-y-2">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-steel">Component Elements &amp; Subsea Kits</h4>
+                          <div className="grid gap-2 sm:grid-cols-2">
+                            {values.items.map((item, idx) => (
+                              <div key={idx} className="flex items-center gap-2 rounded-lg border border-line bg-paper px-3 py-2 text-xs font-medium text-ink">
+                                <Package size={14} className="text-gold-dark shrink-0" />
+                                <span>{item}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CmsPreviewModal>
             </Form>
           );
         }}

@@ -28,6 +28,7 @@ const ProductFormPage = lazy(() => import("@/features/admin/products/ProductForm
 const AdminProjectsListPage = lazy(() => import("@/features/admin/projects/ProjectsListPage").then((m) => ({ default: m.ProjectsListPage })));
 const ProjectFormPage = lazy(() => import("@/features/admin/projects/ProjectFormPage").then((m) => ({ default: m.ProjectFormPage })));
 const ContentBlocksPage = lazy(() => import("@/features/admin/content/ContentBlocksPage").then((m) => ({ default: m.ContentBlocksPage })));
+const AnalyticsPage = lazy(() => import("@/features/admin/analytics/AnalyticsPage").then((m) => ({ default: m.AnalyticsPage })));
 const UsersListPage = lazy(() => import("@/features/admin/users/UsersListPage").then((m) => ({ default: m.UsersListPage })));
 const AuditLogsPage = lazy(() => import("@/features/admin/audit/AuditLogsPage").then((m) => ({ default: m.AuditLogsPage })));
 
@@ -154,6 +155,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["SuperAdmin", "ContentManager", "Administrator", "Editor"]}>
             <ContentBlocksPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "analytics",
+        element: (
+          <ProtectedRoute allowedRoles={["SuperAdmin", "ContentManager", "Administrator", "Editor"]}>
+            <AnalyticsPage />
           </ProtectedRoute>
         ),
       },

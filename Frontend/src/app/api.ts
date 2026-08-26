@@ -34,6 +34,6 @@ const baseQueryWithAuthHandling: BaseQueryFn<string | FetchArgs, unknown, FetchB
 export const api = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithAuthHandling,
-  tagTypes: ["ContactSubmission", "Service", "Product", "Project", "ContentBlock"],
+  tagTypes: ["ContactSubmission", "Service", "Product", "Project", "ContentBlock", "Analytics"],
   endpoints: () => ({}),
 });

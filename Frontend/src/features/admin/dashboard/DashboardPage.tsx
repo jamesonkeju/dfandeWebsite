@@ -17,6 +17,7 @@ import { useGetContactSubmissionsQuery } from "@/features/contact/api/contactApi
 import { useGetAllServicesQuery } from "@/features/services/api/servicesApi";
 import { useGetAllProductsQuery } from "@/features/products/api/productsApi";
 import { useGetAllProjectsQuery } from "@/features/projects/api/projectsApi";
+import { useGetAnalyticsSummaryQuery } from "@/features/analytics/api/analyticsApi";
 import { useSelector } from "react-redux";
 import { selectAuth, selectUserRoles } from "@/features/admin/auth/authSlice";
 import { StatusBadge } from "@/features/admin/components/StatusBadge";
@@ -31,6 +32,7 @@ export function DashboardPage() {
   const { data: services, isLoading: isLoadingServices } = useGetAllServicesQuery();
   const { data: products, isLoading: isLoadingProducts } = useGetAllProductsQuery();
   const { data: projects, isLoading: isLoadingProjects } = useGetAllProjectsQuery();
+  const { data: analytics, isLoading: isLoadingAnalytics } = useGetAnalyticsSummaryQuery(7);
 
   const [recentAudits, setRecentAudits] = useState<any[]>([]);
 
@@ -67,7 +69,14 @@ export function DashboardPage() {
       </div>
 
       {/* OPERATIONAL METRIC STATS */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <StatCard
+          icon={Activity}
+          label="Site Visits (7d)"
+          value={isLoadingAnalytics ? "…" : String(analytics?.last7DaysViews ?? 0)}
+          note={`${analytics?.todayPageViews ?? 0} views today`}
+          link="/admin/analytics"
+        />
         <StatCard
           icon={Mail}
           label="Contact Inquiries"

@@ -28,6 +28,7 @@ import {
   type ServiceFormValues,
 } from "@/features/services/api/servicesApi";
 import { StringListField } from "@/components/forms/StringListField";
+import { CmsPreviewModal } from "@/features/admin/components/CmsPreviewModal";
 
 const ICON_OPTIONS: Array<{ key: string; label: string; icon: LucideIcon }> = [
   { key: "flame", label: "Flame (Wellhead/Thermal)", icon: Flame },
@@ -91,7 +92,8 @@ export function ServiceFormPage() {
   const [updateService] = useUpdateServiceMutation();
 
   const [presetModalOpen, setPresetModalOpen] = useState(false);
-  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [imageLightboxOpen, setImageLightboxOpen] = useState(false);
+  const [livePreviewOpen, setLivePreviewOpen] = useState(false);
   const [imageLoadError, setImageLoadError] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -352,18 +354,28 @@ export function ServiceFormPage() {
                 </div>
 
                 {/* Form Action Buttons */}
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 rounded-xl bg-gold py-3 text-xs font-bold uppercase tracking-wider text-gold-ink hover:bg-gold-light transition-all cursor-pointer shadow-sm disabled:opacity-50"
+                    className="flex-1 rounded-xl bg-gold py-3 text-xs font-bold uppercase tracking-wider text-gold-ink hover:bg-gold-light transition-all cursor-pointer shadow-sm disabled:opacity-50 text-center"
                   >
                     {isSubmitting ? "Saving…" : isEditing ? "Save Changes" : "Publish New Service"}
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setLivePreviewOpen(true)}
+                    className="flex items-center justify-center gap-1.5 rounded-xl border border-gold-dark/40 bg-gold/10 px-5 py-3 text-xs font-bold text-gold-dark hover:bg-gold/20 cursor-pointer transition-colors"
+                  >
+                    <Eye size={14} />
+                    <span>Live Preview</span>
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => navigate("/admin/services")}
-                    className="rounded-xl border border-line bg-white px-6 py-3 text-xs font-bold text-steel hover:text-ink hover:bg-paper transition-colors cursor-pointer"
+                    className="rounded-xl border border-line bg-white px-5 py-3 text-xs font-bold text-steel hover:text-ink hover:bg-paper transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -382,7 +394,7 @@ export function ServiceFormPage() {
                     {values.imageUrl && !imageLoadError && (
                       <button
                         type="button"
-                        onClick={() => setPreviewModalOpen(true)}
+                        onClick={() => setImageLightboxOpen(true)}
                         className="flex items-center gap-1 text-[11px] font-bold text-gold-dark hover:underline cursor-pointer"
                       >
                         <Eye size={12} />
@@ -574,9 +586,9 @@ export function ServiceFormPage() {
               )}
 
               {/* FULL-SIZE IMAGE PREVIEW MODAL */}
-              {previewModalOpen && values.imageUrl && (
+              {imageLightboxOpen && values.imageUrl && (
                 <div
-                  onClick={() => setPreviewModalOpen(false)}
+                  onClick={() => setImageLightboxOpen(false)}
                   className="fixed inset-0 z-50 flex items-center justify-center bg-void/80 p-6 backdrop-blur-sm cursor-zoom-out"
                 >
                   <div className="relative max-w-4xl max-h-[85vh] overflow-hidden rounded-2xl border border-white/20 bg-void">
@@ -587,6 +599,59 @@ export function ServiceFormPage() {
                   </div>
                 </div>
               )}
+
+              {/* CMS LIVE SERVICE PREVIEW MODAL */}
+              <CmsPreviewModal
+                isOpen={livePreviewOpen}
+                onClose={() => setLivePreviewOpen(false)}
+                title={`Preview Service: ${values.title || "Untitled"}`}
+                subtitle="Live responsive public presentation preview"
+              >
+                <div className="space-y-8">
+                  {/* Hero Banner Area */}
+                  <div className="relative overflow-hidden rounded-3xl bg-void p-8 text-white">
+                    <div className="relative z-10 max-w-2xl space-y-3">
+                      <span className="inline-block rounded-full bg-gold/20 px-3 py-1 font-mono text-xs font-bold uppercase tracking-wider text-gold">
+                        Engineering Capability
+                      </span>
+                      <h1 className="text-2xl md:text-3xl font-bold">{values.title || "Service Title"}</h1>
+                      <p className="text-sm text-void-soft leading-relaxed">
+                        {values.summary || "High-level summary of service engineering capabilities."}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Banner Image */}
+                  {values.imageUrl && !imageLoadError && (
+                    <div className="overflow-hidden rounded-2xl border border-line aspect-video max-h-80 w-full">
+                      <img src={values.imageUrl} alt={values.title} className="h-full w-full object-cover" />
+                    </div>
+                  )}
+
+                  {/* Overview */}
+                  <div className="space-y-4">
+                    <h3 className="text-base font-bold text-ink border-b border-line pb-2">Technical Overview</h3>
+                    <p className="text-xs md:text-sm text-ink-soft leading-relaxed whitespace-pre-line">
+                      {values.summary || "Detailed scope of work and engineering overview."}
+                    </p>
+                  </div>
+
+                  {/* Scope of Work */}
+                  {values.scope && values.scope.length > 0 && (
+                    <div className="space-y-3">
+                      <h3 className="text-base font-bold text-ink border-b border-line pb-2">Key Engineering Scope</h3>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {values.scope.map((item: string, idx: number) => (
+                          <div key={idx} className="flex items-start gap-2 rounded-xl border border-line bg-paper p-3 text-xs text-ink font-medium">
+                            <CheckCircle2 size={15} className="text-gold-dark shrink-0 mt-0.5" />
+                            <span>{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CmsPreviewModal>
             </Form>
           );
         }}

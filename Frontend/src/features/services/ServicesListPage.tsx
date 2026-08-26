@@ -18,6 +18,7 @@ import { Container } from "@/components/layout/Container";
 import { StaggerGroup, StaggerItem } from "@/components/motion/Stagger";
 import { useGetPublishedServicesQuery } from "./api/servicesApi";
 import { SERVICE_GALLERIES } from "./data/serviceMedia";
+import { SEOHead } from "@/components/common/SEOHead";
 
 const ICONS: Record<string, LucideIcon> = {
   flame: Flame,
@@ -135,6 +136,11 @@ export function ServicesListPage() {
 
   return (
     <>
+      <SEOHead
+        title="Engineering Services & Field Operations"
+        description="DFANDE provides certified wellhead maintenance, Xmas tree recertification, subsea choke valve overhaul, WHCP installation, and OCTG procurement across Nigeria."
+        canonicalUrl="/services"
+      />
       <PageHeader
         eyebrow="Technical Service Portfolio"
         title="Engineering Solutions for Wellhead Reliability"

@@ -16,6 +16,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<ContentBlock> ContentBlocks => Set<ContentBlock>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<VisitorLog> VisitorLogs => Set<VisitorLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

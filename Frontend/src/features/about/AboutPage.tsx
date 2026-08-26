@@ -17,6 +17,7 @@ import {
   Building2,
   Award,
 } from "lucide-react";
+import { SEOHead } from "@/components/common/SEOHead";
 
 type Milestone = {
   year: string;
@@ -131,6 +132,11 @@ export function AboutPage() {
 
   return (
     <>
+      <SEOHead
+        title="About Our Corporate Profile, Engineering Yards & History"
+        description="Learn about DFANDE's 20+ year legacy in Nigerian energy engineering, 1,500m² Port Harcourt workshop, 30,000 psi hydro testing bay, and ISO 9001/14001/45001 accreditations."
+        canonicalUrl="/about"
+      />
       <PageHeader
         eyebrow="About DF&E"
         title="Engineering Discipline, Local Delivery"

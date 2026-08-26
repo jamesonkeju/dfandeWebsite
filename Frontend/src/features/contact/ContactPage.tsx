@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { useGetPublishedServicesQuery } from "@/features/services/api/servicesApi";
 import { useSubmitContactMutation, type ContactFormValues, type ApiErrorResponse } from "./api/contactApi";
 import { useContent } from "@/features/content/hooks/useContent";
+import { SEOHead } from "@/components/common/SEOHead";
 
 const ContactSchema = Yup.object({
   name: Yup.string().trim().required("Please enter your name.").max(200),
@@ -66,8 +67,31 @@ export function ContactPage() {
     }
   }
 
+  const contactSchema = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Divine Flame and Energy International Limited",
+    "image": "https://dfande.com/images/company-profile-hero.png",
+    "telephone": phoneList[0] || "+234 810 500 0092",
+    "email": contactEmail,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": facilityAddress,
+      "addressLocality": "Port Harcourt",
+      "addressRegion": "Rivers State",
+      "addressCountry": "NG"
+    },
+    "url": "https://dfande.com/contact"
+  };
+
   return (
     <>
+      <SEOHead
+        title="Contact Engineering & Field Operations"
+        description="Contact DFANDE corporate headquarters in Lagos or our 1,500m² field engineering workshop in Port Harcourt for technical consultations, RFQs, and 24/7 mobilization."
+        canonicalUrl="/contact"
+        structuredData={contactSchema}
+      />
       <PageHeader
         eyebrow="Contact DF&E"
         title="Get in Touch with Our Team"

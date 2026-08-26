@@ -20,6 +20,23 @@ import {
   useUpdateProjectMutation,
   type ProjectFormValues,
 } from "@/features/projects/api/projectsApi";
+import { ClientLogo } from "@/components/common/ClientLogo";
+import { CmsPreviewModal } from "@/features/admin/components/CmsPreviewModal";
+
+const COMMON_OPERATORS = [
+  "Chevron Nigeria Ltd",
+  "SPDC (Shell)",
+  "ExxonMobil",
+  "TotalEnergies (TOTAL)",
+  "Seplat Energy",
+  "NNPC E&P Ltd",
+  "First E&P",
+  "Addax Petroleum",
+  "Agip Nigeria",
+  "Daewoo Nigeria",
+  "Seflam",
+  "Newcross Petroleum Ltd"
+];
 
 const CATEGORY_OPTIONS = [
   { value: "wellhead", label: "Wellhead & Xmas Tree Maintenance" },
@@ -62,6 +79,7 @@ export function ProjectFormPage() {
 
   const [presetModalOpen, setPresetModalOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   if (isEditing && isLoading) {
@@ -164,10 +182,25 @@ export function ProjectFormPage() {
                       <Field
                         id="client"
                         name="client"
-                        placeholder="e.g. TotalEnergies E&P Nigeria"
+                        placeholder="e.g. Chevron Nigeria Ltd"
                         className="w-full rounded-xl border border-line bg-paper-raised px-4 py-2.5 text-xs font-semibold text-ink outline-none focus:border-gold-dark focus:bg-white"
                       />
                       <ErrorMessage name="client" component="p" className="mt-1 text-[11px] text-danger" />
+
+                      {/* Quick Operator Logo Presets */}
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        <span className="text-[10px] font-bold uppercase text-steel">Quick Presets:</span>
+                        {COMMON_OPERATORS.slice(0, 6).map((op) => (
+                          <button
+                            key={op}
+                            type="button"
+                            onClick={() => setFieldValue("client", op)}
+                            className="rounded-md border border-line bg-paper px-2 py-0.5 text-[10px] font-semibold text-ink hover:border-gold-dark hover:bg-white transition-colors"
+                          >
+                            {op.split(" ")[0]}
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
                     <div>
@@ -289,7 +322,7 @@ export function ProjectFormPage() {
                 </div>
 
                 {/* Form Actions */}
-                <div className="flex items-center gap-3 pt-2">
+                <div className="flex flex-wrap items-center gap-3 pt-2">
                   <button
                     type="submit"
                     disabled={isSubmitting}
@@ -297,10 +330,20 @@ export function ProjectFormPage() {
                   >
                     {isSubmitting ? "Saving Project…" : isEditing ? "Save Changes" : "Create Project"}
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPreviewModalOpen(true)}
+                    className="flex items-center justify-center gap-1.5 rounded-xl border border-gold-dark/40 bg-gold/10 px-5 py-3 text-xs font-bold text-gold-dark hover:bg-gold/20 cursor-pointer transition-colors"
+                  >
+                    <Eye size={14} />
+                    <span>Live Preview</span>
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => navigate("/admin/projects")}
-                    className="rounded-xl border border-line px-6 py-3 text-xs font-bold text-steel hover:bg-paper cursor-pointer transition-colors"
+                    className="rounded-xl border border-line px-5 py-3 text-xs font-bold text-steel hover:bg-paper cursor-pointer transition-colors"
                   >
                     Cancel
                   </button>
@@ -521,6 +564,91 @@ export function ProjectFormPage() {
                   </div>
                 </div>
               )}
+              {/* CMS LIVE PREVIEW MODAL */}
+              <CmsPreviewModal
+                isOpen={previewModalOpen}
+                onClose={() => setPreviewModalOpen(false)}
+                title={`Preview: ${values.client || "New Project"}`}
+                subtitle="Live responsive card and contractual tender matrix preview"
+              >
+                <div className="space-y-8">
+                  {/* Card View Preview */}
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-steel mb-3 flex items-center gap-1.5">
+                      <Layers size={13} className="text-gold-dark" />
+                      <span>Card Layout (Public Grid Display)</span>
+                    </h4>
+
+                    <div className="max-w-md mx-auto overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
+                      {/* Client Logo Header */}
+                      <div className="border-b border-line bg-gradient-to-r from-paper to-white p-5 flex items-center justify-between gap-4">
+                        <ClientLogo clientName={values.client || "Client"} size="md" />
+                        <span className="rounded-full bg-paper-raised border border-line px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-steel">
+                          {CATEGORY_OPTIONS.find((c) => c.value === values.category)?.label || values.category}
+                        </span>
+                      </div>
+
+                      {/* Card Content */}
+                      <div className="p-6 space-y-3">
+                        <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-gold-dark">
+                          <Calendar size={13} />
+                          <span>{values.year || "Year"}</span>
+                        </div>
+
+                        <h3 className="text-base font-bold text-ink">
+                          {values.client || "Client Operator Name"}
+                        </h3>
+
+                        <p className="text-xs md:text-sm text-ink-soft leading-relaxed">
+                          {values.scope || "Scope of work description."}
+                        </p>
+
+                        <div className="pt-4 flex items-center justify-between border-t border-line text-xs text-steel">
+                          <span className="flex items-center gap-1 font-semibold uppercase tracking-wider text-[11px]">
+                            <MapPin size={12} className="text-gold-dark" />
+                            {values.location || "Location"}
+                          </span>
+                          <span className="text-[11px] font-mono text-gold-dark font-bold">Verified Record</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Table View Preview */}
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-steel mb-3 flex items-center gap-1.5">
+                      <Layers size={13} className="text-gold-dark" />
+                      <span>Tender Matrix Row (Public Table Display)</span>
+                    </h4>
+
+                    <div className="overflow-x-auto rounded-xl border border-line bg-white">
+                      <table className="w-full text-left text-xs">
+                        <thead className="border-b border-line bg-paper text-[11px] font-bold uppercase tracking-wider text-ink">
+                          <tr>
+                            <th className="px-4 py-3">Operator</th>
+                            <th className="px-4 py-3">Work Scope</th>
+                            <th className="px-4 py-3">Location</th>
+                            <th className="px-4 py-3">Year</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr className="border-b border-line">
+                            <td className="px-4 py-3 font-bold text-ink whitespace-nowrap">
+                              <div className="flex items-center gap-2">
+                                <ClientLogo clientName={values.client || "Client"} size="sm" />
+                                <span>{values.client || "Client"}</span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-ink-soft min-w-[200px]">{values.scope || "Scope"}</td>
+                            <td className="px-4 py-3 text-steel whitespace-nowrap">{values.location || "Location"}</td>
+                            <td className="px-4 py-3 font-mono font-bold text-gold-dark whitespace-nowrap">{values.year}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </CmsPreviewModal>
             </Form>
           );
         }}

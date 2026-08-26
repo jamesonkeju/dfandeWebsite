@@ -5,6 +5,7 @@ import { CtaBand } from "@/components/sections/CtaBand";
 import { useGetPublishedProductsQuery } from "./api/productsApi";
 import { CheckCircle2, Package, Layers, Shield } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { SEOHead } from "@/components/common/SEOHead";
 
 export function ProductsPage() {
   const { data: products, isLoading, isError } = useGetPublishedProductsQuery();
@@ -18,6 +19,11 @@ export function ProductsPage() {
 
   return (
     <>
+      <SEOHead
+        title="Equipment Catalog & MRO Materials Supply"
+        description="Explore DFANDE's certified product catalog: Surface & Subsea Wellhead equipment, API 6A Xmas trees, Choke valves, Mudline suspension systems, WHCP, and MRO spare parts."
+        canonicalUrl="/products"
+      />
       <PageHeader
         eyebrow="Equipment & Material Supply"
         title="Wellhead, Choke Valves &amp; Oilfield Products"
