@@ -25,7 +25,8 @@ export function AnalyticsPage() {
   const handleExportCsv = async () => {
     try {
       setIsExporting(true);
-      const res = await fetch(`/api/analytics/export?days=${days}`, {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "/api";
+      const res = await fetch(`${baseUrl}/analytics/export?days=${days}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

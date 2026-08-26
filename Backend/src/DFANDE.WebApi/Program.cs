@@ -136,14 +136,14 @@ if (swaggerEnabled)
     });
 }
 
-if (app.Environment.IsDevelopment())
+// Auto-ensure schema objects and essential tables exist
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
-    var dbContext = scope.ServiceProvider.GetRequiredService<DFANDE.Infrastructure.Persistence.ApplicationDbContext>();
-    await dbContext.Database.EnsureCreatedAsync();
-
     try
     {
+        var dbContext = scope.ServiceProvider.GetRequiredService<DFANDE.Infrastructure.Persistence.ApplicationDbContext>();
+        await dbContext.Database.EnsureCreatedAsync();
+
         await dbContext.Database.ExecuteSqlRawAsync(@"
 IF EXISTS (SELECT * FROM sys.tables WHERE name = 'AspNetUsers')
 BEGIN
@@ -201,18 +201,22 @@ BEGIN
     CREATE INDEX [IX_VisitorLogs_Path] ON [VisitorLogs] ([Path]);
     CREATE INDEX [IX_VisitorLogs_SessionId] ON [VisitorLogs] ([SessionId]);
 END");
+
+        await IdentitySeeder.SeedAsync(scope.ServiceProvider, app.Configuration);
+
+        if (app.Environment.IsDevelopment())
+        {
+            var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+            await DFANDE.Infrastructure.Persistence.ServiceSeeder.SeedAsync(dbContext, loggerFactory);
+            await DFANDE.Infrastructure.Persistence.ProductSeeder.SeedAsync(dbContext, loggerFactory);
+            await DFANDE.Infrastructure.Persistence.ProjectSeeder.SeedAsync(dbContext, loggerFactory);
+            await DFANDE.Infrastructure.Persistence.ContentBlockSeeder.SeedAsync(dbContext, loggerFactory);
+        }
     }
     catch { /* Schema check for SQL Server vs Postgres */ }
-
-    await IdentitySeeder.SeedAsync(scope.ServiceProvider, app.Configuration);
-
-    var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
-    await DFANDE.Infrastructure.Persistence.ServiceSeeder.SeedAsync(dbContext, loggerFactory);
-    await DFANDE.Infrastructure.Persistence.ProductSeeder.SeedAsync(dbContext, loggerFactory);
-    await DFANDE.Infrastructure.Persistence.ProjectSeeder.SeedAsync(dbContext, loggerFactory);
-    await DFANDE.Infrastructure.Persistence.ContentBlockSeeder.SeedAsync(dbContext, loggerFactory);
 }
-else
+
+if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }

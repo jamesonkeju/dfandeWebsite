@@ -22,43 +22,50 @@ public class TrackVisitCommandHandler(IApplicationDbContext context)
 {
     public async Task<Guid> Handle(TrackVisitCommand request, CancellationToken cancellationToken)
     {
-        var (browser, os, deviceType) = ParseUserAgent(request.UserAgent);
-        var ipHash = HashIp(request.IpAddress);
-
-        // Sanitize path
-        var rawPath = string.IsNullOrWhiteSpace(request.Path) ? "/" : request.Path.Trim();
-        if (rawPath.Length > 500) rawPath = rawPath[..500];
-
-        // Check if updating duration on existing visit within the last 5 minutes on same path and session
-        var cutoff = DateTime.UtcNow.AddMinutes(-5);
-        var existing = await context.VisitorLogs
-            .Where(v => v.SessionId == request.SessionId && v.Path == rawPath && v.TimestampUtc >= cutoff)
-            .OrderByDescending(v => v.TimestampUtc)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (existing != null && request.DurationSeconds > 0)
+        try
         {
-            existing.UpdateDuration(request.DurationSeconds);
+            var (browser, os, deviceType) = ParseUserAgent(request.UserAgent);
+            var ipHash = HashIp(request.IpAddress);
+
+            // Sanitize path
+            var rawPath = string.IsNullOrWhiteSpace(request.Path) ? "/" : request.Path.Trim();
+            if (rawPath.Length > 500) rawPath = rawPath[..500];
+
+            // Check if updating duration on existing visit within the last 5 minutes on same path and session
+            var cutoff = DateTime.UtcNow.AddMinutes(-5);
+            var existing = await context.VisitorLogs
+                .Where(v => v.SessionId == request.SessionId && v.Path == rawPath && v.TimestampUtc >= cutoff)
+                .OrderByDescending(v => v.TimestampUtc)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (existing != null && request.DurationSeconds > 0)
+            {
+                existing.UpdateDuration(request.DurationSeconds);
+                await context.SaveChangesAsync(cancellationToken);
+                return existing.Id;
+            }
+
+            var log = VisitorLog.Create(
+                sessionId: request.SessionId,
+                path: rawPath,
+                queryString: request.QueryString,
+                referrer: request.Referrer,
+                userAgent: request.UserAgent,
+                browser: browser,
+                operatingSystem: os,
+                deviceType: deviceType,
+                ipHash: ipHash,
+                durationSeconds: request.DurationSeconds);
+
+            context.VisitorLogs.Add(log);
             await context.SaveChangesAsync(cancellationToken);
-            return existing.Id;
+
+            return log.Id;
         }
-
-        var log = VisitorLog.Create(
-            sessionId: request.SessionId,
-            path: rawPath,
-            queryString: request.QueryString,
-            referrer: request.Referrer,
-            userAgent: request.UserAgent,
-            browser: browser,
-            operatingSystem: os,
-            deviceType: deviceType,
-            ipHash: ipHash,
-            durationSeconds: request.DurationSeconds);
-
-        context.VisitorLogs.Add(log);
-        await context.SaveChangesAsync(cancellationToken);
-
-        return log.Id;
+        catch
+        {
+            return Guid.Empty;
+        }
     }
 
     private static (string Browser, string Os, string DeviceType) ParseUserAgent(string? ua)
