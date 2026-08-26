@@ -182,45 +182,80 @@ export function ProjectsPage() {
 
         {/* VIEW MODE: CARDS */}
         {viewMode === "cards" && (
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((project, idx) => (
-              <div
-                key={project.id ?? `${project.client}-${idx}`}
-                className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-gold-dark/60 hover:shadow-md"
-              >
-                {/* Brand Header Banner */}
-                <div className="border-b border-line bg-gradient-to-r from-paper to-white p-5 flex items-center justify-between gap-4">
-                  <ClientLogo clientName={project.client} size="md" />
-                  <span className="rounded-full bg-paper-raised border border-line px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-steel shrink-0">
-                    {CATEGORY_LABELS[project.category] ?? project.category}
-                  </span>
-                </div>
+          <div className="mt-8 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((project, idx) => {
+              const fallbackImg =
+                project.category === "choke-valve"
+                  ? "/images/project-choke-valve.jpg"
+                  : project.category === "control-panel"
+                  ? "/images/project-control-panel.jpg"
+                  : "/images/project-wellhead.jpg";
+              const cardImage = project.imageUrl || fallbackImg;
 
-                {/* Content Body */}
-                <div className="flex flex-1 flex-col p-6">
-                  <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-gold-dark mb-2">
-                    <Calendar size={13} />
-                    <span>{project.year}</span>
+              return (
+                <div
+                  key={project.id ?? `${project.client}-${idx}`}
+                  className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-line bg-white shadow-xs transition-all duration-300 hover:-translate-y-1.5 hover:border-gold-dark/60 hover:shadow-xl"
+                >
+                  {/* Photo Header with Category Badge */}
+                  <div className="relative h-44 w-full overflow-hidden bg-void">
+                    <img
+                      src={cardImage}
+                      alt={`${project.client} ${project.category}`}
+                      className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-void via-void/40 to-transparent" />
+
+                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-1 rounded-full bg-void/80 backdrop-blur-md border border-white/10 px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-gold">
+                        <Shield size={11} className="text-gold" /> Verified
+                      </span>
+                      <span className="rounded-full bg-void/80 backdrop-blur-md border border-white/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+                        {CATEGORY_LABELS[project.category] ?? project.category}
+                      </span>
+                    </div>
+
+                    <div className="absolute bottom-3 left-4 flex items-center gap-1.5 font-mono text-xs font-bold text-gold">
+                      <Calendar size={13} />
+                      <span>{project.year}</span>
+                    </div>
                   </div>
 
-                  <h3 className="text-base font-bold text-ink group-hover:text-gold-dark transition-colors">
-                    {project.client}
-                  </h3>
+                  {/* Brand & Client Identity Showcase */}
+                  <div className="border-b border-line bg-gradient-to-r from-paper to-white p-5 flex items-center justify-between gap-4">
+                    <ClientLogo clientName={project.client} size="md" />
+                    <div className="text-right">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-steel block">
+                        Contract Partner
+                      </span>
+                      <span className="text-xs font-bold text-ink truncate max-w-[120px] block">
+                        {project.client}
+                      </span>
+                    </div>
+                  </div>
 
-                  <p className="mt-2.5 text-xs md:text-sm text-ink-soft leading-relaxed line-clamp-4">
-                    {project.scope}
-                  </p>
+                  {/* Content Body */}
+                  <div className="flex flex-1 flex-col p-6">
+                    <h3 className="text-base font-bold text-ink group-hover:text-gold-dark transition-colors line-clamp-1">
+                      {project.client}
+                    </h3>
 
-                  <div className="mt-auto pt-5 flex items-center justify-between border-t border-line/60 text-xs text-steel">
-                    <span className="flex items-center gap-1 font-semibold uppercase tracking-wider text-[11px] truncate max-w-[80%]">
-                      <MapPin size={12} className="text-gold-dark shrink-0" />
-                      {project.location}
-                    </span>
-                    <CheckCircle size={14} className="text-gold-dark shrink-0" />
+                    <p className="mt-2.5 text-xs md:text-sm text-ink-soft leading-relaxed line-clamp-4">
+                      {project.scope}
+                    </p>
+
+                    <div className="mt-auto pt-5 flex items-center justify-between border-t border-line/60 text-xs text-steel">
+                      <span className="flex items-center gap-1.5 font-semibold uppercase tracking-wider text-[11px] truncate max-w-[85%] text-steel-dark">
+                        <MapPin size={13} className="text-gold-dark shrink-0" />
+                        {project.location}
+                      </span>
+                      <CheckCircle size={15} className="text-gold-dark shrink-0" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -242,18 +277,21 @@ export function ProjectsPage() {
                   {filtered.map((p, idx) => (
                     <tr key={p.id ?? `${p.client}-${idx}`} className="hover:bg-paper/60 transition-colors">
                       <td className="px-6 py-4.5 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4">
                           <ClientLogo clientName={p.client} size="sm" />
-                          <span className="font-bold text-ink text-sm">{p.client}</span>
+                          <div className="flex flex-col">
+                            <span className="font-bold text-ink text-sm">{p.client}</span>
+                            <span className="text-[11px] text-steel font-medium">Verified Contract</span>
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4.5 text-ink-soft leading-relaxed min-w-[280px] max-w-md">{p.scope}</td>
-                      <td className="px-6 py-4.5 text-steel whitespace-nowrap text-xs">{p.location}</td>
+                      <td className="px-6 py-4.5 text-steel whitespace-nowrap text-xs font-medium">{p.location}</td>
                       <td className="px-6 py-4.5 font-mono text-xs font-bold text-gold-dark whitespace-nowrap">
                         {p.year}
                       </td>
                       <td className="px-6 py-4.5 whitespace-nowrap">
-                        <span className="rounded-full bg-paper border border-line px-2.5 py-1 text-[11px] font-semibold text-steel">
+                        <span className="rounded-full bg-paper border border-line px-3 py-1 text-[11px] font-bold text-ink">
                           {CATEGORY_LABELS[p.category] ?? p.category}
                         </span>
                       </td>
