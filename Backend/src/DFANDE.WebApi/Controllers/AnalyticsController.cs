@@ -42,7 +42,7 @@ public class AnalyticsController(ISender sender) : ControllerBase
     }
 
     [HttpGet("summary")]
-    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Administrator},{Roles.ContentManager}")]
+    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.ContentManager},{Roles.InquiryViewer}")]
     public async Task<ActionResult<ApiResponse<AnalyticsSummaryDto>>> GetSummary(
         [FromQuery] int days = 30,
         CancellationToken cancellationToken = default)
@@ -52,7 +52,7 @@ public class AnalyticsController(ISender sender) : ControllerBase
     }
 
     [HttpGet("export")]
-    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.Administrator},{Roles.ContentManager}")]
+    [Authorize(Roles = $"{Roles.SuperAdmin},{Roles.ContentManager}")]
     public async Task<IActionResult> ExportReport(
         [FromQuery] DateTime? from,
         [FromQuery] DateTime? to,
